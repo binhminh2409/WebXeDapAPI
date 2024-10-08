@@ -134,6 +134,7 @@ namespace WebXeDapAPI.Service
         {
             throw new NotImplementedException();
         }
+
         public void UpdateOrCreateAccessToken(User user)
         {
             var existingToken = _userInterface.GetValidTokenByUserId(user.Id);
