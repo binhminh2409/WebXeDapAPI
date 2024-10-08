@@ -39,7 +39,7 @@ namespace WebXeDapAPI.Controller
                     data = create,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    message = "User successfully"
+                    message = "User created successfully"
                 });
             }
             catch (Exception ex)
@@ -65,6 +65,7 @@ namespace WebXeDapAPI.Controller
                     return BadRequest("Email and password are required.");
                 }
                 User user = _userIService.Login(requestDto);
+                
                 string jwtToken = _token.CreateToken(user);
 
                 var cookieOptions = new CookieOptions
@@ -74,7 +75,13 @@ namespace WebXeDapAPI.Controller
                     Expires = DateTime.UtcNow.AddMinutes(3000),
                 };
                 HttpContext.Response.Cookies.Append("authenticationToken", jwtToken, cookieOptions);
-                return Ok(jwtToken);
+                return Ok(new XBaseResult
+                {
+                    data = jwtToken,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Login successfully"
+                });
             }
             catch (Exception ex)
             {

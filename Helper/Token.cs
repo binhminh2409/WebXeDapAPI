@@ -25,10 +25,8 @@ namespace WebXeDapAPI.Helper
                 //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("Name", user.Name.ToString()),
                 new Claim("Id", user.Id.ToString())
-
-        };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Token256").Value!)); // Sử dụng khóa 256 bit
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Secret").Value!)); 
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             DateTime now = DateTime.Now; // Lấy thời gian hiện tại
             int expirationMinutes = 60; // Đặt thời gian hết hạn là 3 phút
