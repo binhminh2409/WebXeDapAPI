@@ -125,7 +125,7 @@ var app = builder.Build();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"E:\Code\WebXeDap\WebXeDapAPI", "Image")),
+        Path.Combine(@"C:\Users\xuant\OneDrive\Máy tính\WebAPIXE2\WebXeDapApi", "Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 
