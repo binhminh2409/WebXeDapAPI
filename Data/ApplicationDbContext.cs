@@ -15,6 +15,7 @@ namespace WebXeDapAPI.Data
         public DbSet<Product_Details> Product_Details { get; set; }
         public DbSet<Order_Details> Order_Details { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<AccessToken> AccessTokens { get; set; }
@@ -26,6 +27,10 @@ namespace WebXeDapAPI.Data
                 .HasConversion<string>();
 
             modelBuilder.Entity<Order>()
+                .Property(x => x.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Payment>()
                 .Property(x => x.Status)
                 .HasConversion<string>();
 
