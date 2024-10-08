@@ -61,3 +61,4 @@ E:\Code\WebXeDap\WebXeDapAPI\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.Newtonsof
 E:\Code\WebXeDap\WebXeDapAPI\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
 E:\Code\WebXeDap\WebXeDapAPI\bin\Debug\net6.0\Newtonsoft.Json.dll
 E:\Code\WebXeDap\WebXeDapAPI\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
+E:\Code\WebXeDap\WebXeDapAPI\bin\Debug\net6.0\appsettings.json

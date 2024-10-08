@@ -11,6 +11,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using Microsoft.Extensions.Logging;
+using WebXeDapAPI.Service.Interfaces;
+using WebXeDapAPI.Service;
+using WebXeDapAPI.Repository.Interface;
+using WebXeDapAPI.Helper;
+using WebXeDapAPI.Repository;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,25 +30,24 @@ builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 // Add services to the container.
-// builder.Services.AddScoped<IUserIService, UserService>();
-// builder.Services.AddScoped<IUserInterface, UserRepository>();
-// builder.Services.AddScoped<Token>();
-// builder.Services.AddScoped<ISlideIService, SlideService>();
-// builder.Services.AddScoped<ISlideInterface, SlideRepository>();
-// builder.Services.AddScoped<ITypeIService, TypeService>();
-// builder.Services.AddScoped<IBrandIService, BrandService>();
-// builder.Services.AddScoped<IProductsIService ,ProductsService>();
-// builder.Services.AddScoped<IProduct_DetailIService, Product_DetailService>();
-// builder.Services.AddScoped<IProductsInterface, ProductsRepository>();
-// builder.Services.AddScoped<IProducts_DrtailInterface, Products_DetailRepository>();
-// builder.Services.AddScoped<ICartInterface, CartRepository>();
-// builder.Services.AddScoped<IOrderIService, OrderService>();
-// builder.Services.AddScoped<ICartIService, CartService>();
+builder.Services.AddScoped<IUserIService, UserService>();
+builder.Services.AddScoped<IUserInterface, UserRepository>();
+builder.Services.AddScoped<Token>();
+builder.Services.AddScoped<ISlideIService, SlideService>();
+builder.Services.AddScoped<ISlideInterface, SlideRepository>();
+builder.Services.AddScoped<ITypeIService, TypeService>();
+builder.Services.AddScoped<IBrandIService, BrandService>();
+builder.Services.AddScoped<IProductsIService ,ProductsService>();
+builder.Services.AddScoped<IProduct_DetailIService, Product_DetailService>();
+builder.Services.AddScoped<IProductsInterface, ProductsRepository>();
+builder.Services.AddScoped<IProducts_DrtailInterface, Products_DetailRepository>();
+builder.Services.AddScoped<ICartInterface, CartRepository>();
+builder.Services.AddScoped<IOrderIService, OrderService>();
+builder.Services.AddScoped<ICartIService, CartService>();
+
 
 builder.Services.AddControllers();
-
 builder.Services.AddEndpointsApiExplorer();
-    
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "XeDapAPI", Version = "v1" });
@@ -70,7 +76,13 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
+
 builder.Services.AddSwaggerGen();
+
+Console.WriteLine("ValidIssuer: " + builder.Configuration["Jwt:ValidIssuer"]);
+Console.WriteLine("ValidAudience: " + builder.Configuration["Jwt:ValidAudience"]);
+Console.WriteLine("Secret: " + builder.Configuration["Jwt:Secret"]);
 builder.Services.AddAuthentication(option =>
 {
     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -84,10 +96,10 @@ builder.Services.AddAuthentication(option =>
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidIssuer = builder.Configuration["Jwt:ValidIssuer"],
+        ValidAudience = builder.Configuration["Jwt:ValidAudience"],
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Token256"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
     };
 })
 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
@@ -118,11 +130,9 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
