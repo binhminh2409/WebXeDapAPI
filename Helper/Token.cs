@@ -33,8 +33,8 @@ namespace WebXeDapAPI.Helper
             DateTime expiration = now.AddMinutes(expirationMinutes); // Tính thời gian hết hạn
 
             var token = new JwtSecurityToken(claims: claims, expires: expiration,
-                signingCredentials: cred, issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"]);
+                signingCredentials: cred, issuer: _configuration["Jwt:ValidIssuer"],
+            audience: _configuration["Jwt:ValidAudience"]);
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return jwt;
@@ -43,14 +43,14 @@ namespace WebXeDapAPI.Helper
         public ClaimsPrincipal ValidataToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Token256"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
-                ValidAudience = _configuration["Jwt:Audience"],
+                ValidIssuer = _configuration["Jwt:ValidIssuer"],
+                ValidAudience = _configuration["Jwt:ValidAudience"],
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = key,
             };
@@ -85,7 +85,7 @@ namespace WebXeDapAPI.Helper
         {
             try
             {
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Token256").Value!));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Secret").Value!));
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenValidationParameters = new TokenValidationParameters
@@ -93,9 +93,9 @@ namespace WebXeDapAPI.Helper
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = key,
                     ValidateIssuer = true,
-                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidIssuer = _configuration["Jwt:ValidIssuer"],
                     ValidateAudience = true,
-                    ValidAudience = _configuration["Jwt:Audience"],
+                    ValidAudience = _configuration["Jwt:ValidAudience"],
                     ValidateLifetime = true,
                 };
 
