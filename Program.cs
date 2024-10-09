@@ -122,12 +122,12 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseStaticFiles(new StaticFileOptions
+/*app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(@"E:\Code\WebXeDap\WebXeDapAPI", "Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
-});
+});*/
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();

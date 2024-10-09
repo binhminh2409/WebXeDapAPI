@@ -57,5 +57,52 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+        [HttpGet("GetRevenueByType")]
+        public IActionResult GetRevenueByType(int typeId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                decimal revenue = _orderService.CalculateRevenueByType(typeId, startDate, endDate);
+                return Ok(new { Revenue = revenue });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("GetRevenue")]  // Đường dẫn API để lấy doanh thu
+        [ProducesResponseType(200)]  // Mã trả về khi thành công
+        [ProducesResponseType(400)]  // Mã trả về khi lỗi
+        public IActionResult GetRevenue([FromBody] RevenueRequestDto revenueRequestDto)
+        {
+            try
+            {
+                if (revenueRequestDto.StartDate == default || revenueRequestDto.EndDate == default)
+                {
+                    throw new ArgumentException("Khoảng thời gian không hợp lệ được cung cấp");
+                }
+
+                var totalRevenue = _orderService.CalculateRevenue(revenueRequestDto.StartDate, revenueRequestDto.EndDate);  // Tính doanh thu trong khoảng thời gian
+
+                return Ok(new XBaseResult
+                {
+                    data = totalRevenue,  // Dữ liệu là tổng doanh thu
+                    success = true,  // Đánh dấu thành công
+                    httpStatusCode = (int)HttpStatusCode.OK,  // Mã HTTP thành công
+                    message = "Tính doanh thu thành công"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,  // Đánh dấu thất bại
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,  // Mã HTTP lỗi
+                    message = ex.Message  // Thông báo lỗi
+                });
+            }
+        }
+
     }
 }
