@@ -19,6 +19,7 @@ using WebXeDapAPI.Helper;
 using WebXeDapAPI.Repository;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -45,7 +46,7 @@ builder.Services.AddScoped<IProducts_DrtailInterface, Products_DetailRepository>
 builder.Services.AddScoped<ICartInterface, CartRepository>();
 builder.Services.AddScoped<IOrderIService, OrderService>();
 builder.Services.AddScoped<ICartIService, CartService>();
-
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -132,7 +133,7 @@ using (var scope = app.Services.CreateScope())
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"E:\Code\WebXeDap\WebXeDapAPI", "Image")),
+        Path.Combine(@"D:\API_ProjectKy4\WebXeDapApi\", "Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 
