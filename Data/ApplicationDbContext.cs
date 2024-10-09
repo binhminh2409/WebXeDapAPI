@@ -90,6 +90,10 @@ namespace WebXeDapAPI.Data
             modelBuilder.Entity<Comment>()
                 .Property(x => x.Description)
                 .HasColumnType("text");
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.TotalPrice)
+                .HasColumnType("decimal(18, 2)"); 
         }
     }
 }
