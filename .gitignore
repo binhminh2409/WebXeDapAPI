@@ -1,4 +1,5 @@
 # Ignore build directories
 bin/
 obj/
+Migrations/
 appsetting.json
