@@ -81,6 +81,10 @@ namespace WebXeDapAPI.Data
             modelBuilder.Entity<Slide>()
                 .Property(x => x.PriceHasDecreased)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.TotalPrice)
+                .HasColumnType("decimal(18, 2)"); 
         }
     }
 }
