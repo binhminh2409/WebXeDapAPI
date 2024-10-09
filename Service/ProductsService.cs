@@ -1,5 +1,6 @@
 ﻿using Data.Dto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using WebXeDapAPI.Data;
 using WebXeDapAPI.Dto;
@@ -73,17 +74,17 @@ namespace WebXeDapAPI.Service
             }
         }
 
-        public bool Delete(int Id)
+        public async Task<bool> DeleteAsync(int Id)
         {
             try
             {
-                var delete = _dbContext.Products.FirstOrDefault(x => x.Id == Id);
+                var delete = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == Id);
                 if (delete == null)
                 {
                     throw new Exception("Id not found");
                 }
                 _dbContext.Products.Remove(delete);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -223,9 +224,58 @@ namespace WebXeDapAPI.Service
             }
         }
 
-        public string Update(UpdateProductDto updateProductDto, IFormFile image)
+        public async Task<UpdateProductDto> Update(int Id, UpdateProductDto updateProductDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == Id);
+                if (product == null)
+                {
+                    throw new Exception("ProductId not found");
+                }
+
+                if (!string.IsNullOrEmpty(updateProductDto.ProductName) && updateProductDto.ProductName != "null")
+                {
+                    product.ProductName = updateProductDto.ProductName;
+                }
+
+                if (updateProductDto.Price > 0)
+                {
+                    product.Price = updateProductDto.Price;
+                }
+
+                if (updateProductDto.PriceHasDecreased > 0)
+                {
+                    product.PriceHasDecreased = updateProductDto.PriceHasDecreased;
+                }
+
+                if (!string.IsNullOrEmpty(updateProductDto.Description) && updateProductDto.Description != "null")
+                {
+                    product.Description = updateProductDto.Description;
+                }
+
+                if (updateProductDto.Quantity >= 0)
+                {
+                    product.Quantity = updateProductDto.Quantity;
+                }
+
+                if (updateProductDto.Image != null)
+                {
+                    product.Image = await SaveImageAsync(updateProductDto.Image);
+                }
+
+                if (updateProductDto.Create.HasValue)
+                {
+                    product.Create = updateProductDto.Create.Value;
+                }
+                product.Status = updateProductDto.Status;
+                await _dbContext.SaveChangesAsync();
+                return updateProductDto;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while updating the product: {ex.Message}");
+            }
         }
 
         public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(decimal minPrice, decimal maxPrice, string? brandsName)
@@ -306,6 +356,73 @@ namespace WebXeDapAPI.Service
                 .ToList();
 
             return result;
+        }
+
+        public async Task<List<GetViewProductType>> GetProductType(string productType)
+        {
+            try
+            {
+                var type = await _dbContext.Types.FirstOrDefaultAsync(x => x.ProductType == productType);
+                if (type == null)
+                {
+                    throw new Exception("TypeName not found");
+                }
+                var typeProduct = await (from t in _dbContext.Types
+                                         join p in _dbContext.Products
+                                         on t.Id equals p.TypeId
+                                         where t.ProductType == productType
+                                         select new GetViewProductType
+                                         {
+                                             Id = p.Id,
+                                             ProductName = p.ProductName,
+                                             Price = p.Price,
+                                             PriceHasDecreased = p.PriceHasDecreased,
+                                             Description = p.Description,
+                                             Image = p.Image,
+                                             BrandId = p.BrandId,
+                                             brandName = p.brandName,
+                                             TypeId = p.TypeId,
+                                             TypeName = p.TypeName,
+                                             Colors = p.Colors,
+                                             ProductType_ProductType = t.ProductType
+                                         }).ToListAsync();
+                return typeProduct;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching the product type", ex);
+            }
+        }
+
+        public async Task<List<ProductTypeInfDto>> GetProductName(string productName)
+        {
+            try
+            {
+                var products = await _dbContext.Products
+                    .Where(x => x.ProductName.ToLower().Contains(productName.ToLower()))
+                    .Select(product => new ProductTypeInfDto
+                    {
+                        Id = product.Id,
+                        ProductName = product.ProductName,
+                        Price = product.Price,
+                        PriceHasDecreased = product.PriceHasDecreased,
+                        Description = product.Description,
+                        Image = product.Image,
+                        TypeName = product.TypeName,
+                        Colors = product.Colors,
+                    }).ToListAsync();
+
+                if (products.Count == 0)
+                {
+                    return new List<ProductTypeInfDto>();
+                }
+
+                return products;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching the products with name '{productName}'", ex);
+            }
         }
     }
 }

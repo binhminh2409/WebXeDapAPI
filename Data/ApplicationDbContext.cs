@@ -19,6 +19,7 @@ namespace WebXeDapAPI.Data
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<AccessToken> AccessTokens { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,6 +34,10 @@ namespace WebXeDapAPI.Data
             modelBuilder.Entity<Payment>()
                 .Property(x => x.Status)
                 .HasConversion<string>();
+
+            modelBuilder.Entity<Payment>()
+                .Property(x => x.TotalPrice)
+                .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Brand>()
                 .Property(x => x.Status)
@@ -81,6 +86,10 @@ namespace WebXeDapAPI.Data
             modelBuilder.Entity<Slide>()
                 .Property(x => x.PriceHasDecreased)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Comment>()
+                .Property(x => x.Description)
+                .HasColumnType("text");
 
             modelBuilder.Entity<Payment>()
                 .Property(p => p.TotalPrice)
