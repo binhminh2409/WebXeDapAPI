@@ -1,6 +1,7 @@
 # Ignore Visual Studio temporary files
 .vs/
 
+# Ignore configuration file
 appsettings.json
 
 # Ignore build directories
