@@ -1,6 +1,9 @@
 # Ignore Visual Studio temporary files
 .vs/
 
+appsettings.json
+
 # Ignore build directories
 bin/
 obj/
+Migrations/
