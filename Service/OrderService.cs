@@ -20,6 +20,18 @@ namespace WebXeDapAPI.Service
             _cartInterface = cartInterface;
             _dbContext = dbContext;
         }
+        public decimal CalculateRevenue(DateTime startDate, DateTime endDate)
+        {
+            // Lấy tất cả các chi tiết đơn hàng trong khoảng thời gian
+            var orderDetailsInRange = _dbContext.Order_Details
+                .Where(od => od.CreatedDate >= startDate && od.CreatedDate <= endDate)
+                .ToList();
+
+            // Tính tổng doanh thu bằng cách cộng tất cả các giá trị của trường TotalPrice
+            decimal totalRevenue = orderDetailsInRange.Sum(od => od.TotalPrice);
+
+            return totalRevenue;
+        }
         public (Order, List<Order_Details>) Create([FromQuery]OrderDto orderDto)
         {
             try
