@@ -19,6 +19,8 @@ namespace WebXeDapAPI.Models
         public string? City { get; set; }
         [Required]
         public string? Phone { get; set; }
+        public string? Gender { get; set; }
+        public string? Image {  get; set; }
         [Required]
         public string? DateOfBirth { get; set; }
         [Required]

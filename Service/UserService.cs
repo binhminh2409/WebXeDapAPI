@@ -6,6 +6,10 @@ using WebXeDapAPI.Dto;
 using WebXeDapAPI.Helper;
 using WebXeDapAPI.Repository.Interface;
 using WebXeDapAPI.Service.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using WebXeDapAPI.Repository;
 
 namespace WebXeDapAPI.Service
 {
@@ -14,12 +18,65 @@ namespace WebXeDapAPI.Service
         private readonly ApplicationDbContext _DbContex;
         private readonly Token _token;
         private readonly IUserInterface _userInterface;
-        public UserService(ApplicationDbContext dbContex, Token token, IUserInterface userInterface)
+        private readonly IConfiguration _configuration;
+        public UserService(ApplicationDbContext dbContex, Token token, IUserInterface userInterface, IConfiguration config)
         {
             _userInterface = userInterface;
             _token = token;
             _DbContex = dbContex;
+            _configuration = config;
         }
+
+        public async Task<UserImage> GetImage(int Id)
+        {
+            try
+            {
+                var userId = await _DbContex.Users.FirstOrDefaultAsync(x => x.Id == Id);
+                if (userId == null)
+                {
+                    throw new Exception("UserId not found");
+                }
+                var user = new UserImage
+                {
+                    Id = userId.Id,
+                    Image = userId.Image
+                };
+                return user;
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception($"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<GetViewUser> GetUser(int UserId)
+        {
+            try
+            {
+                var userEntity = await _DbContex.Users.FirstOrDefaultAsync(x => x.Id == UserId);
+                if (userEntity == null)
+                {
+                    throw new Exception("UserId not found");
+                }
+                var user = new GetViewUser
+                {
+                    Id = UserId,
+                    Name = userEntity.Name,
+                    Email = userEntity.Email,
+                    Address = userEntity.Address,
+                    City = userEntity.City,
+                    Phone = userEntity.Phone,
+                    DateOfBirth = userEntity.DateOfBirth,
+                    Gender = userEntity.Gender
+                };
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error: {ex.Message}");
+            }
+        }
+
         public User Login(RequestDto requetDto)
         {
             try
@@ -51,7 +108,7 @@ namespace WebXeDapAPI.Service
             try
             {
                 var userToken = _userInterface.GetValidTokenByUserId(UserId);
-                if(userToken != null)
+                if (userToken != null)
                 {
                     var tokenValue = userToken.AcessToken;
                     var principal = _token.ValidataToken(tokenValue);
@@ -87,6 +144,7 @@ namespace WebXeDapAPI.Service
                     City = userdto.City,
                     Phone = userdto.Phone,
                     DateOfBirth = userdto.DateOfBirth,
+                    Gender = userdto.Gender,
                 };
                 user.roles = Roles.User;
                 user.Create = DateTime.Now;
@@ -135,10 +193,28 @@ namespace WebXeDapAPI.Service
             throw new NotImplementedException();
         }
 
+        public async Task<User> UpdateImage(int id, IFormFile image)
+        {
+            if (image == null || image.Length == 0)
+            {
+                throw new ArgumentException("Không có file ảnh được tải lên.");
+            }
+
+            var user = await _DbContex.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("Người dùng không tồn tại.");
+            }
+            user.Image = await SaveImageAsync(image);
+            _DbContex.Users.Update(user);
+            await _DbContex.SaveChangesAsync();
+            return user;
+        }
+
         public void UpdateOrCreateAccessToken(User user)
         {
             var existingToken = _userInterface.GetValidTokenByUserId(user.Id);
-            if(existingToken != null)
+            if (existingToken != null)
             {
                 var token = _token.CreateToken(user);
                 if (string.IsNullOrEmpty(token))
@@ -161,6 +237,90 @@ namespace WebXeDapAPI.Service
                 _DbContex.AccessTokens.Add(accessToken);
             }
             _DbContex.SaveChanges();
+        }
+
+        public async Task<UpdateGetViewUser> UpdateViewUser(int userId, UpdateGetViewUser updateUserDto)
+        {
+            try
+            {
+                var user = await _DbContex.Users.FirstOrDefaultAsync(x => x.Id == userId);
+                if (user == null)
+                {
+                    throw new Exception("userId not found");
+                }
+
+                if (!string.IsNullOrEmpty(updateUserDto.Name) && updateUserDto.Name != "null")
+                {
+                    user.Name = updateUserDto.Name;
+                }
+                if (!string.IsNullOrEmpty(updateUserDto.Email) && updateUserDto.Email != "null")
+                {
+                    user.Email = updateUserDto.Email;
+                }
+                if (!string.IsNullOrEmpty(updateUserDto.Address) && updateUserDto.Address != "null")
+                {
+                    user.Address = updateUserDto.Address;
+                }
+                if (!string.IsNullOrEmpty(updateUserDto.City) && updateUserDto.City != "null")
+                {
+                    user.City = updateUserDto.City;
+                }
+                if (!string.IsNullOrEmpty(updateUserDto.Phone) && updateUserDto.Phone != "null")
+                {
+                    user.Phone = updateUserDto.Phone;
+                }
+                if (!string.IsNullOrEmpty(updateUserDto.Gender) && updateUserDto.Phone != "null")
+                {
+                    user.Phone = updateUserDto.Gender;
+                }
+                if (!string.IsNullOrEmpty(updateUserDto.DateOfBirth) && updateUserDto.DateOfBirth != "null")
+                {
+                    user.DateOfBirth = updateUserDto.DateOfBirth;
+                }
+
+                await _DbContex.SaveChangesAsync();
+                return updateUserDto;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while updating View User: {ex.Message}");
+            }
+        }
+
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            try
+            {
+                string currentDataFolder = DateTime.Now.ToString("dd-MM-yyyy");
+                var baseFolder = _configuration.GetValue<string>("BaseAddress");
+
+                var productFolder = Path.Combine(baseFolder, "UserImage");
+
+                if (!Directory.Exists(productFolder))
+                {
+                    Directory.CreateDirectory(productFolder);
+                }
+                var folderPath = Path.Combine(productFolder, currentDataFolder);
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                string filePath = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+
+                return Path.Combine("Product", currentDataFolder, fileName);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while saving the image: {ex.Message}");
+            }
         }
     }
 }

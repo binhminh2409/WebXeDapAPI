@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using WebXeDapAPI.Service.Interfaces;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebXeDapAPI.Service
 {
@@ -78,26 +79,67 @@ namespace WebXeDapAPI.Service
             }
         }
 
-        public string Update(UpdateProduct_DetailsDto updateProduct_DetailsDto)
+        public async Task<UpdateProduct_DetailsDto> Update(int Id, UpdateProduct_DetailsDto updateProduct_DetailsDto)
         {
             try
             {
-                var product_Details = _dbContext.Product_Details.FirstOrDefault(x => x.Id == updateProduct_DetailsDto.Id);
+                var product_Details = await _dbContext.Product_Details.FirstOrDefaultAsync(x => x.Id == Id);
                 if (product_Details == null)
                 {
                     throw new Exception("Product_DetailId not found");
                 }
-                product_Details.Weight = updateProduct_DetailsDto.Weight;
-                product_Details.Other_Details = updateProduct_DetailsDto.Other_Details;
+
+                // Cập nhật ProductID nếu có giá trị hợp lệ
+                if (updateProduct_DetailsDto.ProductID > 0)
+                {
+                    product_Details.ProductID = updateProduct_DetailsDto.ProductID;
+                }
+
+                if (updateProduct_DetailsDto.Weight > 0)
+                {
+                    product_Details.Weight = updateProduct_DetailsDto.Weight;
+                }
+
+                if (!string.IsNullOrEmpty(updateProduct_DetailsDto.Other_Details) && updateProduct_DetailsDto.Other_Details != "null")
+                {
+                    product_Details.Other_Details = updateProduct_DetailsDto.Other_Details;
+                }
+
+                if (updateProduct_DetailsDto.Price > 0)
+                {
+                    product_Details.Price = updateProduct_DetailsDto.Price;
+                }
+
+                if (updateProduct_DetailsDto.PriceHasDecreased >= 0)
+                {
+                    product_Details.PriceHasDecreased = updateProduct_DetailsDto.PriceHasDecreased;
+                }
+
+                if (updateProduct_DetailsDto.Imgage != null)
+                {
+                    product_Details.Imgage = await SaveImageAsync(updateProduct_DetailsDto.Imgage);
+                }
+
                 _dbContext.Product_Details.Update(product_Details);
-                _dbContext.SaveChanges();
-                return "Update Successfully";
+                await _dbContext.SaveChangesAsync();
+
+                var updatedDto = new UpdateProduct_DetailsDto
+                {
+                    ProductID = product_Details.ProductID,
+                    Weight = product_Details.Weight,
+                    Other_Details = product_Details.Other_Details,
+                    Price = product_Details.Price,
+                    PriceHasDecreased = product_Details.PriceHasDecreased,
+                };
+
+                return updatedDto;
             }
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while updating Product_Details", ex);
             }
         }
+
         private async Task<string> SaveImageAsync(IFormFile image)
         {
             try

@@ -62,24 +62,24 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
         [HttpPut("Update")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(200)]
-        public IActionResult UpdateProduct([FromForm]UpdateProductDto updateproductDto, [FromForm] IFormFile image)
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UpdateProduct(int Id, [FromForm] UpdateProductDto updateproductDto)
         {
             try
             {
-                if(updateproductDto == null)
+                if (updateproductDto == null)
                 {
                     return Unauthorized("Invalid slide data");
                 }
-                var delete = _productsService.Update(updateproductDto, image);
+                var delete = await _productsService.Update(Id, updateproductDto);
                 return Ok(new XBaseResult
                 {
                     data = updateproductDto,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    totalCount = updateproductDto.Id,
                     message = "Update Successfully"
                 });
             }
@@ -88,7 +88,7 @@ namespace WebXeDapAPI.Controller
                 return BadRequest(new XBaseResult
                 {
                     success = false,
-                    httpStatusCode= (int)HttpStatusCode.BadRequest,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
                     message = ex.Message
                 });
             }
@@ -359,6 +359,102 @@ namespace WebXeDapAPI.Controller
                 {
                     success = false,
                     httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("GetViewProductType")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetProductType(string productType)
+        {
+            try
+            {
+                var result = await _productsService.GetProductType(productType);
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = result.Count,
+                    message = "GetViewProductType Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "Đã xảy ra lỗi: " + ex.Message
+                });
+            }
+        }
+
+        [HttpDelete("Delete/{Id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> DeleteProduct(int Id)
+        {
+            try
+            {
+                var result = await _productsService.DeleteAsync(Id);
+                if (result)
+                {
+                    return Ok(new XBaseResult
+                    {
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        message = "Product deleted successfully"
+                    });
+                }
+                else
+                {
+                    return BadRequest(new XBaseResult
+                    {
+                        success = false,
+                        httpStatusCode = (int)HttpStatusCode.BadRequest,
+                        message = "Product could not be deleted"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("GetProductName")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetProductName(string productName)
+        {
+            try
+            {
+                var result = await _productsService.GetProductName(productName);
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = result.Count,
+                    message = "GetProductName Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    data = null,
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    totalCount = 0,
                     message = ex.Message
                 });
             }
