@@ -44,6 +44,8 @@ builder.Services.AddScoped<IProducts_DrtailInterface, Products_DetailRepository>
 builder.Services.AddScoped<ICartInterface, CartRepository>();
 builder.Services.AddScoped<IOrderIService, OrderService>();
 builder.Services.AddScoped<ICartIService, CartService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ILikeService, LikeService>();
 
 
 builder.Services.AddControllers();
@@ -113,7 +115,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigins", builder =>
     {
-        builder.WithOrigins("http://localhost:5000")
+        builder.WithOrigins("http://localhost:4200")
             .AllowAnyHeader()
             .WithMethods("POST","PUT", "GET","DELETE", "OPTIONS")
             .AllowCredentials();

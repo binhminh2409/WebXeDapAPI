@@ -20,6 +20,7 @@ namespace WebXeDapAPI.Data
         public DbSet<Brand> Brands { get; set; }
         public DbSet<AccessToken> AccessTokens { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Like> Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -86,10 +87,6 @@ namespace WebXeDapAPI.Data
             modelBuilder.Entity<Slide>()
                 .Property(x => x.PriceHasDecreased)
                 .HasColumnType("decimal(18,2)");
-
-            modelBuilder.Entity<Comment>()
-                .Property(x => x.Description)
-                .HasColumnType("text");
         }
     }
 }
