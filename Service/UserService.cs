@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using WebXeDapAPI.Repository;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebXeDapAPI.Service
 {
@@ -239,7 +240,7 @@ namespace WebXeDapAPI.Service
             _DbContex.SaveChanges();
         }
 
-        public async Task<UpdateGetViewUser> UpdateViewUser(int userId, UpdateGetViewUser updateUserDto)
+        public async Task<UpdateGetViewUser> UpdateViewUser([FromQuery] int userId, [FromBody] UpdateGetViewUser updateUserDto)
         {
             try
             {
@@ -269,9 +270,9 @@ namespace WebXeDapAPI.Service
                 {
                     user.Phone = updateUserDto.Phone;
                 }
-                if (!string.IsNullOrEmpty(updateUserDto.Gender) && updateUserDto.Phone != "null")
+                if (!string.IsNullOrEmpty(updateUserDto.Gender) && updateUserDto.Gender != "null")
                 {
-                    user.Phone = updateUserDto.Gender;
+                    user.Gender = updateUserDto.Gender;
                 }
                 if (!string.IsNullOrEmpty(updateUserDto.DateOfBirth) && updateUserDto.DateOfBirth != "null")
                 {
@@ -314,8 +315,8 @@ namespace WebXeDapAPI.Service
                 {
                     await image.CopyToAsync(stream);
                 }
-
-                return Path.Combine("Product", currentDataFolder, fileName);
+                string relativePath = Path.Combine("UserImage", currentDataFolder, fileName).Replace('\\', '/');
+                return relativePath;
             }
             catch (Exception ex)
             {

@@ -242,7 +242,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        [HttpPut("GetImage")]
+        [HttpGet("GetImage")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetUserImage(int userId)
