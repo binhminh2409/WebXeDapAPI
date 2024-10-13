@@ -52,6 +52,7 @@ namespace WebXeDapAPI.Service
                     foreach (var productId in orderDto.Cart)
                     {
                         var cart = _cartInterface.GetProducId(productId);
+                        Console.WriteLine("-------------------------" + cart.Id);
                         if (cart != null)
                         {
                             var orderDetail = new Order_Details
@@ -65,6 +66,7 @@ namespace WebXeDapAPI.Service
                                 Image = cart.Image,
                                 CreatedDate = DateTime.Now
                             };
+                            Console.WriteLine("-------------------------" + orderDetail.ToString());
                             orderDetails.Add(orderDetail);
                         }
                         else

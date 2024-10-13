@@ -29,7 +29,7 @@ namespace WebXeDapAPI.Controller
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreatePayment([FromForm] PaymentDto paymentDto)
+        public async Task<IActionResult> CreatePayment([FromBody] PaymentDto paymentDto)
         {
             try
             {
@@ -42,31 +42,39 @@ namespace WebXeDapAPI.Controller
                         message = "Invalid product data"
                     });
                 }
-                var userIdClaim = HttpContext.User.FindFirst("Id");
-
-
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                return Ok(new XBaseResult
                 {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+                });;
+                // Console.WriteLine("------------------------------");
+                // var userIdClaim = HttpContext.User.FindFirst("Id");
 
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
+                // Console.WriteLine("------------------------------");
 
-                    var payment = await _paymentIService.CreateAsync(paymentDto);
+                // if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                // {
+                //     var tokenStatus = _token.CheckTokenStatus(userId);
 
-                    return Ok(new XBaseResult
-                    {
-                        data = payment,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        totalCount = payment.Id,
-                        message = "Payment created successfully"
-                    });
-                }
-                return BadRequest("Invalid user ID.");
+                //     if (tokenStatus == StatusToken.Expired)
+                //     {
+                //         // Token không còn hợp lệ, từ chối yêu cầu
+                //         return Unauthorized("The token is no longer valid. Please log in again.");
+                //     }
+
+                //     var payment = await _paymentIService.CreateAsync(paymentDto);
+
+                //     return Ok(new XBaseResult
+                //     {
+                //         data = payment,
+                //         success = true,
+                //         httpStatusCode = (int)HttpStatusCode.OK,
+                //         totalCount = payment.Id,
+                //         message = "Payment created successfully"
+                //     });
+                // }
+                // return BadRequest("Invalid user ID.");
                 
             }
             catch (Exception ex)
