@@ -29,7 +29,7 @@ namespace WebXeDapAPI.Controller
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreatePayment([FromForm] PaymentDto paymentDto)
+        public async Task<IActionResult> CreatePayment([FromBody] PaymentDto paymentDto)
         {
             try
             {
@@ -44,11 +44,10 @@ namespace WebXeDapAPI.Controller
                 }
                 var userIdClaim = HttpContext.User.FindFirst("Id");
 
-
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
                 {
                     var tokenStatus = _token.CheckTokenStatus(userId);
-
+                    paymentDto.UserId = userId;
                     if (tokenStatus == StatusToken.Expired)
                     {
                         // Token không còn hợp lệ, từ chối yêu cầu

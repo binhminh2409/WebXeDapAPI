@@ -30,6 +30,7 @@ namespace WebXeDapAPI.Service
             User user = _userInterface.GetUser(dto.UserId);
             Order order = _orderInterface.GetById(dto.OrderId);
             Payment payment = PaymentMapper.DtoToEntity(dto, user, order);
+            Console.WriteLine(payment.ToString());
             Payment createdPayment = await _paymentInterface.CreateAsync(payment);
             PaymentDto createdPaymentDto = PaymentMapper.EntityToDto(createdPayment);
             return createdPaymentDto;

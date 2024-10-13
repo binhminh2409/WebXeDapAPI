@@ -10,5 +10,10 @@ namespace WebXeDapAPI.Dto
         public string ShipEmail { get; set; }
         public string ShipPhone { get; set; }
         public List<int> Cart { get; set; }
+
+        public override string ToString()
+        {
+            return $"OrderDto [UserID={UserID}, ShipName={ShipName}, ShipAddress={ShipAddress}, ShipEmail={ShipEmail}, ShipPhone={ShipPhone}, Cart=[{string.Join(",", Cart)}]]";
+        }
     }
 }
