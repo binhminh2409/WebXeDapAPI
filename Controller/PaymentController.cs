@@ -42,39 +42,30 @@ namespace WebXeDapAPI.Controller
                         message = "Invalid product data"
                     });
                 }
-                return Ok(new XBaseResult
+                var userIdClaim = HttpContext.User.FindFirst("Id");
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
                 {
-                    success = false,
-                    httpStatusCode = (int)HttpStatusCode.BadRequest,
-                    message = "DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
-                });;
-                // Console.WriteLine("------------------------------");
-                // var userIdClaim = HttpContext.User.FindFirst("Id");
+                    var tokenStatus = _token.CheckTokenStatus(userId);
+                    paymentDto.UserId = userId;
+                    if (tokenStatus == StatusToken.Expired)
+                    {
+                        // Token không còn hợp lệ, từ chối yêu cầu
+                        return Unauthorized("The token is no longer valid. Please log in again.");
+                    }
 
-                // Console.WriteLine("------------------------------");
+                    var payment = await _paymentIService.CreateAsync(paymentDto);
 
-                // if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
-                // {
-                //     var tokenStatus = _token.CheckTokenStatus(userId);
-
-                //     if (tokenStatus == StatusToken.Expired)
-                //     {
-                //         // Token không còn hợp lệ, từ chối yêu cầu
-                //         return Unauthorized("The token is no longer valid. Please log in again.");
-                //     }
-
-                //     var payment = await _paymentIService.CreateAsync(paymentDto);
-
-                //     return Ok(new XBaseResult
-                //     {
-                //         data = payment,
-                //         success = true,
-                //         httpStatusCode = (int)HttpStatusCode.OK,
-                //         totalCount = payment.Id,
-                //         message = "Payment created successfully"
-                //     });
-                // }
-                // return BadRequest("Invalid user ID.");
+                    return Ok(new XBaseResult
+                    {
+                        data = payment,
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        totalCount = payment.Id,
+                        message = "Payment created successfully"
+                    });
+                }
+                return BadRequest("Invalid user ID.");
                 
             }
             catch (Exception ex)
