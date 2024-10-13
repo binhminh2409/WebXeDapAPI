@@ -65,7 +65,7 @@ namespace WebXeDapAPI.Controller
                     return BadRequest("Email and password are required.");
                 }
                 User user = _userIService.Login(requestDto);
-                
+
                 string jwtToken = _token.CreateToken(user);
 
                 var cookieOptions = new CookieOptions
@@ -156,6 +156,117 @@ namespace WebXeDapAPI.Controller
             catch (Exception ex)
             {
                 return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GetViewUser")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetUser(int userId)
+        {
+            try
+            {
+                var result = await _userIService.GetUser(userId);
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "User successfully retrieved"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("UpdateViewUser")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UpdateViewUser(int userId, [FromBody] UpdateGetViewUser updateGetViewUserDto)
+        {
+            try
+            {
+                var result = await _userIService.UpdateViewUser(userId, updateGetViewUserDto);
+
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "User updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("UpdateImage")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UpdateImage(int userId, IFormFile image)
+        {
+            try
+            {
+                var result = await _userIService.UpdateImage(userId, image);
+
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "User updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("GetImage")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetUserImage(int userId)
+        {
+            try
+            {
+                var result = await _userIService.GetImage(userId);
+
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get User successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
             }
         }
     }
