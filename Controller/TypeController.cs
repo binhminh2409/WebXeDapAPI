@@ -6,6 +6,7 @@ using System.Net;
 using System.Security.Claims;
 using WebXeDapAPI.Helper;
 using WebXeDapAPI.Service.Interfaces;
+using ITypeIService = WebXeDapAPI.Service.Interfaces.ITypeIService;
 
 namespace WebXeDapAPI.Controller
 {
@@ -15,11 +16,12 @@ namespace WebXeDapAPI.Controller
     {
         private readonly ITypeIService _typeIService;
         private readonly Token _token;
-        public TypeController(ITypeIService typeService,Token token)
-        {
+        
+        public TypeController(ITypeIService typeService, Token token){
             _token = token;
             _typeIService = typeService;
         }
+
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -98,3 +100,4 @@ namespace WebXeDapAPI.Controller
         }
     }
 }
+ 

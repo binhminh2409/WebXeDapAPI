@@ -129,10 +129,10 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.EnsureCreated();
 }
 
+var imagePath = builder.Configuration["ImagePath"];
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"C:\Users\xuant\OneDrive\Máy tính\WebAPIXE2\WebXeDapApi", "Image")),
+    FileProvider = new PhysicalFileProvider(imagePath),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 
