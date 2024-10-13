@@ -6,10 +6,9 @@ namespace WebXeDapAPI.Dto
 {
     public class PaymentDto
     {
-        [Key]
         public int Id { get; set; }
-        public UserDto User { get; set; }
-        public OrderDto Order { get; set; }
+        public int UserId { get; set; }
+        public int OrderId { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; }
     }

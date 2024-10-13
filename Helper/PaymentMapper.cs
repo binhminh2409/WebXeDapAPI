@@ -17,4 +17,14 @@ public class PaymentMapper
             Status = status
         };
     }
+
+    public static PaymentDto EntityToDto(Payment entity) {
+        return new PaymentDto {
+            Id = entity.Id,
+            UserId = entity.User.Id,
+            OrderId = entity.Order.Id,
+            TotalPrice = entity.TotalPrice,
+            Status = entity.Status.ToString()
+        };
+    }
 }
