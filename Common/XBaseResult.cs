@@ -14,7 +14,7 @@ namespace WebXeDapAPI.Common
         public T data { get; set; }
 
         public int totalCount { get; set; }
-
+        public bool isBirthday { get; set; }
         public XBaseResult()
         {
             success = true;
@@ -28,6 +28,7 @@ namespace WebXeDapAPI.Common
             message = obj.message;
             data = obj.data;
             totalCount = obj.totalCount;
+            isBirthday = obj.isBirthday;
         }
     }
 

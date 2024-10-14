@@ -45,6 +45,14 @@ namespace WebXeDapAPI.Service
                 throw new Exception("An error occurred while logging in.", ex);
             }
         }
+        public bool CheckIsBirthday(User user)
+        {
+            if (DateTime.TryParse(user.DateOfBirth, out DateTime birthDate))
+            {
+                return birthDate.Day == DateTime.Now.Day && birthDate.Month == DateTime.Now.Month;
+            }
+            return false;
+        }
 
         public bool logout(int UserId)
         {

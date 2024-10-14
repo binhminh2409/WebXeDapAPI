@@ -44,8 +44,7 @@ builder.Services.AddScoped<IProducts_DrtailInterface, Products_DetailRepository>
 builder.Services.AddScoped<ICartInterface, CartRepository>();
 builder.Services.AddScoped<IOrderIService, OrderService>();
 builder.Services.AddScoped<ICartIService, CartService>();
-
-
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -113,7 +112,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigins", builder =>
     {
-        builder.WithOrigins("http://localhost:5000")
+        builder.WithOrigins("http://localhost:4200")
             .AllowAnyHeader()
             .WithMethods("POST","PUT", "GET","DELETE", "OPTIONS")
             .AllowCredentials();
@@ -125,7 +124,7 @@ var app = builder.Build();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"E:\Code\WebXeDap\WebXeDapAPI", "Image")),
+        Path.Combine(@"D:\API_Xedap\WebXeDapApi\", "Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 
