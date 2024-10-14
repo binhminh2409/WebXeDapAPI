@@ -10,5 +10,6 @@ namespace WebXeDapAPI.Service.Interfaces
         User Login(RequestDto requetDto);
         bool logout (int UserId);
         string ResetPassword(int UserId);
+        bool CheckIsBirthday(User user);
     }
 }

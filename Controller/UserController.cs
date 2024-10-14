@@ -64,9 +64,14 @@ namespace WebXeDapAPI.Controller
                 {
                     return BadRequest("Email and password are required.");
                 }
+                // Đăng nhập và lấy thông tin người dùng
                 User user = _userIService.Login(requestDto);
-                
+             
+                // Tạo JWT token cho người dùng
                 string jwtToken = _token.CreateToken(user);
+
+                // Kiểm tra xem hôm nay có phải là ngày sinh nhật của người dùng không
+                bool isBirthday = _userIService.CheckIsBirthday(user);
 
                 var cookieOptions = new CookieOptions
                 {
@@ -75,12 +80,14 @@ namespace WebXeDapAPI.Controller
                     Expires = DateTime.UtcNow.AddMinutes(3000),
                 };
                 HttpContext.Response.Cookies.Append("authenticationToken", jwtToken, cookieOptions);
+
                 return Ok(new XBaseResult
                 {
                     data = jwtToken,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    message = "Login successfully"
+                    message = "Login successfully",
+                    isBirthday = isBirthday
                 });
             }
             catch (Exception ex)
