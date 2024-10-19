@@ -24,14 +24,25 @@ namespace WebXeDapAPI.Controller
             _token = token;
             _cartService = cartService;
         }
+
         [HttpPost("CreateCart")]
-        [Authorize]
+        //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreateCart([FromBody] List<CartDto> cartDtoList)
         {
             try
             {
+                if (cartDtoList == null || !cartDtoList.Any())
+                {
+                    return BadRequest(new XBaseResult
+                    {
+                        success = false,
+                        httpStatusCode = (int)HttpStatusCode.BadRequest,
+                        message = "The cart data cannot be null or empty."
+                    });
+                }
+
                 var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
                 if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
                 {
@@ -41,11 +52,12 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
                 }
+
                 foreach (var cartDto in cartDtoList)
                 {
                     var create = _cartService.CrateBicycle(cartDto);
-                   
                 }
+
                 return Ok(new XBaseResult
                 {
                     success = true,
@@ -64,6 +76,7 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
         [HttpPut("IncreaseQuantityShoppingCart")]
         //[Authorize]
         [ProducesResponseType(200)]

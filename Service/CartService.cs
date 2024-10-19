@@ -54,6 +54,7 @@ namespace WebXeDapAPI.Service
                         TotalPrice = priceToUse,
                         Quantity = 1,
                         Image = product.Image,
+                        Color = product.Colors,
                         Create = DateTime.Now,
                         Status = StatusCart.Pending
                     };
@@ -69,7 +70,7 @@ namespace WebXeDapAPI.Service
         {
             try
             {
-                var query = _dbContext.Carts.FirstOrDefault(x => x.Id == Id);
+                var query = _dbContext.Carts.FirstOrDefault(x => x.ProductId == Id);
                 if (query == null)
                 {
                     throw new Exception("Id not found");

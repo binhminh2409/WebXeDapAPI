@@ -14,6 +14,7 @@ namespace WebXeDapAPI.Models
         public decimal TotalPrice { get; set; }
         public int Quantity { get; set; }
         public string Image { get; set; }
+        public string Color { get; set; }
         public DateTime Create { get; set; }
         public StatusCart Status { get; set; }
 

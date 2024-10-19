@@ -1,4 +1,4 @@
-﻿﻿using WebXeDapAPI.Data;
+﻿using WebXeDapAPI.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +24,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    
 });
 
 builder.Services.AddControllersWithViews()
@@ -38,7 +37,7 @@ builder.Services.AddScoped<ISlideIService, SlideService>();
 builder.Services.AddScoped<ISlideInterface, SlideRepository>();
 builder.Services.AddScoped<ITypeIService, TypeService>();
 builder.Services.AddScoped<IBrandIService, BrandService>();
-builder.Services.AddScoped<IProductsIService ,ProductsService>();
+builder.Services.AddScoped<IProductsIService, ProductsService>();
 builder.Services.AddScoped<IProduct_DetailIService, Product_DetailService>();
 builder.Services.AddScoped<IProductsInterface, ProductsRepository>();
 builder.Services.AddScoped<IProducts_DrtailInterface, Products_DetailRepository>();
@@ -118,23 +117,17 @@ builder.Services.AddCors(options =>
     {
         builder.WithOrigins("http://localhost:4200")
             .AllowAnyHeader()
-            .WithMethods("POST","PUT", "GET","DELETE", "OPTIONS")
+            .WithMethods("POST", "PUT", "GET", "DELETE", "OPTIONS")
             .AllowCredentials();
     });
 });
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
-}
-
-var imagePath = builder.Configuration["ImagePath"];
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(imagePath),
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(@"C:\Users\xuant\OneDrive\Máy tính\WebAPIXE2\WebXeDapApi", "Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 

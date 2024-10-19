@@ -88,10 +88,6 @@ namespace WebXeDapAPI.Data
                 .Property(x => x.PriceHasDecreased)
                 .HasColumnType("decimal(18,2)");
 
-            modelBuilder.Entity<Comment>()
-                .Property(x => x.Description)
-                .HasColumnType("text");
-
             modelBuilder.Entity<Payment>()
                 .Property(p => p.TotalPrice)
                 .HasColumnType("decimal(18, 2)"); 
