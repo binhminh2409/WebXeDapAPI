@@ -62,6 +62,7 @@ namespace WebXeDapAPI.Service
                                 ProductName = cart.ProductName,
                                 Quantity = cart.Quantity,
                                 PriceProduc = cart.PriceProduct,
+                                Color = cart.Color,
                                 TotalPrice = cart.TotalPrice,
                                 Image = cart.Image,
                                 CreatedDate = DateTime.Now

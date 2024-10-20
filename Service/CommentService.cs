@@ -58,17 +58,19 @@ namespace WebXeDapAPI.Service
             throw new NotImplementedException();
         }
 
-        public async Task<List<Comment>> GetCommentsByUserId(int userId)
+        public async Task<List<Comment>> GetCommentsByUserId(int userId, int productId)
         {
             try
             {
+                // Querying comments by both userId and productId
                 var comments = await _DBContext.Comments
-                    .Where(x => x.UserId == userId)
+                    .Where(x => x.UserId == userId && x.ProductId == productId)
                     .ToListAsync();
 
+                // Check if comments list is empty
                 if (comments == null || !comments.Any())
                 {
-                    throw new Exception("No comments found for this user.");
+                    throw new Exception("No comments found for this user and product.");
                 }
 
                 return comments;
