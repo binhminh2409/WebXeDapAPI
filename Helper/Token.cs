@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using System.Security.Principal;
 
 namespace WebXeDapAPI.Helper
 {
@@ -22,13 +23,15 @@ namespace WebXeDapAPI.Helper
         public string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim> {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Name.ToString())
+                //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("Name", user.Name.ToString()),
+                new Claim("Id", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.roles.ToString())// Phân quyền theo roles
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Secret").Value!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Secret").Value!)); 
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             DateTime now = DateTime.Now; // Lấy thời gian hiện tại
-            int expirationMinutes = 60; // Đặt thời gian hết hạn là 60 phút
+            int expirationMinutes = 60; // Đặt thời gian hết hạn là 3 phút
             DateTime expiration = now.AddMinutes(expirationMinutes); // Tính thời gian hết hạn
 
             var token = new JwtSecurityToken(claims: claims, expires: expiration,
@@ -53,7 +56,7 @@ namespace WebXeDapAPI.Helper
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = key,
             };
-            try
+            try 
             {
                 var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
                 return principal;
@@ -71,9 +74,9 @@ namespace WebXeDapAPI.Helper
                 .Where(x => x.UserId == userId && x.Status == StatusToken.Valid)
                 .OrderByDescending(x => x.ExpirationDate)
                 .FirstOrDefault();
-            if (userTokens != null)
+            if(userTokens != null)
             {
-                if (userTokens.ExpirationDate > DateTime.Now)
+                if(userTokens.ExpirationDate > DateTime.Now)
                 {
                     return StatusToken.Valid;
                 }
