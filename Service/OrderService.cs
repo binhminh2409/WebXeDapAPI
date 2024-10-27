@@ -20,7 +20,7 @@ namespace WebXeDapAPI.Service
             _cartInterface = cartInterface;
             _dbContext = dbContext;
         }
-        public (Order, List<Order_Details>) Create([FromQuery]OrderDto orderDto)
+        public (Order, List<Order_Details>) Create([FromQuery] OrderDto orderDto)
         {
             try
             {
@@ -28,17 +28,17 @@ namespace WebXeDapAPI.Service
                 {
                     throw new ArgumentNullException(nameof(orderDto), "OrderDto cannot be null");
                 }
-
-                var user = _dbContext.Users.FirstOrDefault(x => x.Id == orderDto.UserID);
-                if (user == null)
+                int? userId = orderDto.UserID;
+                int userIDToAssign = userId ?? -1;
+                if (userId.HasValue)
                 {
-                    throw new Exception("UserId not found");
+                    var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId.Value);
                 }
 
                 var order = new Order
                 {
                     No_ = AutomaticallyGenerateOrderNumbers(),
-                    UserID = user.Id,
+                    UserID = userIDToAssign,
                     ShipName = orderDto.ShipName,
                     ShipAddress = orderDto.ShipAddress,
                     ShipEmail = orderDto.ShipEmail,
@@ -46,7 +46,7 @@ namespace WebXeDapAPI.Service
                     Status = StatusOrder.Pending
                 };
 
-                if(orderDto.Cart != null && orderDto.Cart.Any())
+                if (orderDto.Cart != null && orderDto.Cart.Any())
                 {
                     var orderDetails = new List<Order_Details>();
                     foreach (var productId in orderDto.Cart)
@@ -73,10 +73,25 @@ namespace WebXeDapAPI.Service
                             throw new Exception($"Product with ID {productId} not found.");
                         }
                     }
+
                     _dbContext.Orders.Add(order);
                     _dbContext.Order_Details.AddRange(orderDetails);
+                    _dbContext.SaveChanges();
+                    foreach (var orderDetail in orderDetails)
+                    {
+                        var product = _dbContext.Products.FirstOrDefault(p => p.Id == orderDetail.ProductID);
+                        if (product != null)
+                        {
+                            product.Quantity -= orderDetail.Quantity;
+                        }
+                        else
+                        {
+                            throw new Exception($"Product with ID {orderDetail.ProductID} not found in Products table.");
+                        }
+                    }
 
                     _dbContext.SaveChanges();
+
                     return (order, orderDetails);
                 }
                 else
