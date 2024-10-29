@@ -1,15 +1,10 @@
 ﻿using WebXeDapAPI.Common;
-using WebXeDapAPI.Dto;
-using WebXeDapAPI.Models;
-using WebXeDapAPI.Models.Enum;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Security.Claims;
 using WebXeDapAPI.Helper;
 using WebXeDapAPI.Service.Interfaces;
 using Data.Dto;
+using WebXeDapAPI.Dto;
 
 namespace WebXeDapAPI.Controller
 {
@@ -26,36 +21,15 @@ namespace WebXeDapAPI.Controller
         }
 
         [HttpPost("CreateCart")]
-        //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreateCart([FromBody] List<CartDto> cartDtoList)
         {
             try
             {
-                if (cartDtoList == null || !cartDtoList.Any())
-                {
-                    return BadRequest(new XBaseResult
-                    {
-                        success = false,
-                        httpStatusCode = (int)HttpStatusCode.BadRequest,
-                        message = "The cart data cannot be null or empty."
-                    });
-                }
-
-                var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
-                {
-                    var tokenStatus = _token.CheckTokenStatus(userID);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-                }
-
                 foreach (var cartDto in cartDtoList)
                 {
-                    var create = _cartService.CrateBicycle(cartDto);
+                    var create = _cartService.CreateBicycle(cartDto);
                 }
 
                 return Ok(new XBaseResult
@@ -156,6 +130,7 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
         [HttpGet("GetCart")]
         //[Authorize]
         [ProducesResponseType(200)]
@@ -197,19 +172,20 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
         [HttpDelete("Delete")]
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult DeleteCart([FromQuery]int Id)
+        public IActionResult DeleteCart([FromQuery]int productId)
         {
             try
             {
-                if (Id == null)
+                if (productId == null)
                 {
                     throw new Exception("Id not found");
                 }
-                var delete = _cartService.Delete(Id);
+                var delete = _cartService.Delete(productId);
                 return Ok(new XBaseResult
                 {
                     data = delete,
@@ -228,6 +204,7 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
         [HttpDelete("DeleteCartId")]
         //[Authorize]
         [ProducesResponseType(200)]
@@ -250,6 +227,139 @@ namespace WebXeDapAPI.Controller
                 });
             }
             catch(Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("GetCartGuId")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetCartGuId([FromQuery] string GuId)
+        {
+            try
+            {
+                //var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                //if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
+                //{
+                //    var tokenStatus = _token.CheckTokenStatus(userID);
+                //    if (tokenStatus == StatusToken.Expired)
+                //    {
+                //        return Unauthorized("The token is no longer valid. Please log in again.");
+                //    }
+                //}
+                if (GuId == null)
+                {
+                    throw new Exception("userId not found");
+                }
+                var cart = _cartService.GetCartGuId(GuId);
+                return Ok(new XBaseResult
+                {
+                    data = cart,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = cart.Count,
+                    message = "List"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("IncreaseQuantityShoppingCartGuiId")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult IncreaseQuantityShoppingCartGuiId([FromQuery] string guiId, int createProductId)
+        {
+            try
+            {
+                if (guiId == null && createProductId == null)
+                {
+                    throw new Exception("UserId && createProductId not found");
+                }
+                var increase = _cartService.IncreaseQuantityShoppingCartGuiId(guiId, createProductId);
+                return Ok(new XBaseResult
+                {
+                    data = increase,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpPut("ReduceShoppingCartGuiId")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult ReduceShoppingCartGuiId([FromQuery] string guiId, int createProductId)
+        {
+            try
+            {
+                if (guiId == null && createProductId == null)
+                {
+                    throw new Exception("UserId && createProductId not found");
+                }
+                var query = _cartService.ReduceShoppingCartGuiId(guiId, createProductId);
+                return Ok(new XBaseResult
+                {
+                    data = query,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "ReduceShoppingCart Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("CreateCartslide")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateCartslide([FromBody] List<CartDtoslide> cartDtoListslide)
+        {
+            try
+            {
+                foreach (var cartDto in cartDtoListslide)
+                {
+                    var create = _cartService.CreateBicycleslide(cartDto);
+                }
+
+                return Ok(new XBaseResult
+                {
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = cartDtoListslide.Count,
+                    message = "Create Successfully"
+                });
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {

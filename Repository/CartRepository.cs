@@ -15,6 +15,25 @@ namespace WebXeDapAPI.Repository
             _dbContext = dbContext;
         }
 
+        public List<GetCartInfDto> GetCartItemByGuId(string GuId)
+        {
+            return _dbContext.Carts
+            .Where(x => x.GuId == GuId)
+            .OrderBy(x => x.GuId)
+            .Select(x => new GetCartInfDto
+            {
+                CartId = x.Id,
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                PriceProduct = x.PriceProduct,
+                TotalPrice = x.TotalPrice,
+                Quantity = x.Quantity,
+                Image = x.Image,
+                GuId = x.GuId
+            })
+             .ToList();
+        }
+
         public List<GetCartInfDto> GetCartItemByUser(int userId)
         {
             return _dbContext.Carts

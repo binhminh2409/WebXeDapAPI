@@ -205,5 +205,33 @@ namespace WebXeDapAPI.Controller
                 return StatusCode(500, $"An error occurred: {e.Message}");
             }
         }
+
+        [HttpGet("GetById")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetById(int Id)
+        {
+            try
+            {
+                var getlist = _slideInterface.GetById(Id);
+                return Ok(new XBaseResult
+                {
+                    data = getlist,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = getlist.Count(),
+                    message = "Getlist Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

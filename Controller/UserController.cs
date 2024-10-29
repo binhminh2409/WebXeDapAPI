@@ -265,5 +265,33 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
+        //[HttpGet("GetImage")]
+        //[ProducesResponseType(200)]
+        //[ProducesResponseType(400)]
+        //public async Task<IActionResult> GetUserImage(int userId)
+        //{
+        //    try
+        //    {
+        //        var result = await _userIService.GetImage(userId);
+
+        //        return Ok(new XBaseResult
+        //        {
+        //            data = result,
+        //            success = true,
+        //            httpStatusCode = (int)HttpStatusCode.OK,
+        //            message = "Get User successfully"
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new XBaseResult
+        //        {
+        //            success = false,
+        //            httpStatusCode = (int)HttpStatusCode.BadRequest,
+        //            message = ex.Message
+        //        });
+        //    }
+        //}
     }
 }
