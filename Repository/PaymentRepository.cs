@@ -53,6 +53,15 @@ namespace WebXeDapAPI.Repository
             return payments;   
         }
 
-        
+        public async Task<List<Payment>> GetInTimeRange(DateTime startTime, DateTime endTime)
+        {
+            List<Payment> payments = await _dbContext.Payments
+                .Where(p => p.CreatedTime >= startTime && p.CreatedTime <= endTime)
+                .Include(p => p.User)  
+                .Include(p => p.Order) 
+                .ToListAsync();
+
+            return payments;
+        }
     }
 }
