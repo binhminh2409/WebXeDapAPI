@@ -8,6 +8,7 @@ using System.Net.Mime;
 using WebXeDapAPI.Repository.Interface;
 using WebXeDapAPI.Service.Interfaces;
 using static System.Net.Mime.MediaTypeNames;
+using System.Text;
 
 namespace WebXeDapAPI.Service
 {
@@ -15,10 +16,12 @@ namespace WebXeDapAPI.Service
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly ICartInterface _cartInterface;
-        public OrderService(ApplicationDbContext dbContext,ICartInterface cartInterface)
+        private readonly IOrderDetailsInterface _orderDetailsInterface;
+        public OrderService(ApplicationDbContext dbContext,ICartInterface cartInterface, IOrderDetailsInterface orderDetailsInterface)
         {
             _cartInterface = cartInterface;
             _dbContext = dbContext;
+            _orderDetailsInterface = orderDetailsInterface;
         }
         public (Order, List<Order_Details>) Create([FromQuery]OrderDto orderDto)
         {
@@ -92,12 +95,22 @@ namespace WebXeDapAPI.Service
             }
         }
 
+        public Order_Details GetByOrderNo(string orderNo) {
+            Order_Details? order_Details = _orderDetailsInterface.GetByOrderId(orderNo);
+            return order_Details;
+        }
+
         private static string AutomaticallyGenerateOrderNumbers()
         {
             Random random = new Random();
             int randomNumber = random.Next(0, 1000);//Sinh ra số ngẫy nhiên từ 1 đến 9999
             string formattedNumber = randomNumber.ToString("D4");//Định dạng số thành chuỗi với độ dài 4 ký tư
-            return "OR-" + formattedNumber;
+
+            string dateTimeNow = DateTime.Now.ToString("yyyyMMddHHmmss"); // Format DateTime as a string
+            byte[] dateTimeBytes = Encoding.UTF8.GetBytes(dateTimeNow);
+            string encryptedDateTime = Convert.ToBase64String(dateTimeBytes); // "Encrypt" it by converting to base64
+
+            return $"OR-{formattedNumber}-{encryptedDateTime}";
         }
     }
 }

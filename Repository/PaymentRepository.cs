@@ -22,6 +22,15 @@ namespace WebXeDapAPI.Repository
             return payment;
         }
 
+        public async Task<List<Payment>> GetAll()
+        {
+            List<Payment> payments = await _dbContext.Payments
+                .Include(p => p.User)
+                .Include(p => p.Order)
+                .ToListAsync();
+            return payments;
+        }
+        
 
         public async Task<Payment> GetByIdAsync(int paymentId)
         {
@@ -36,10 +45,14 @@ namespace WebXeDapAPI.Repository
                 return null;
             }
                 List<Payment> payments = await _dbContext.Payments
-                .Where(p => p.User.Id == userId)
-                .ToListAsync();
+                    .Include(p => p.User)
+                    .Include(p => p.Order)
+                    .Where(p => p.User.Id == userId)
+                    .ToListAsync();
 
             return payments;   
         }
+
+        
     }
 }

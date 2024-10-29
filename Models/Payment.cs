@@ -8,8 +8,8 @@ namespace WebXeDapAPI.Models
     {
         [Key]
         public int Id { get; set; }
-        public User User { get; set; }
-        public Order Order { get; set; }
+        public virtual User User { get; set; }
+        public virtual Order Order { get; set; }
         public decimal TotalPrice { get; set; }
         public StatusPayment Status { get; set; }
     }
