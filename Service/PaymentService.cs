@@ -54,5 +54,29 @@ namespace WebXeDapAPI.Service
             PaymentDto createdPaymentDto = PaymentMapper.EntityToDto(createdPayment);
             return createdPaymentDto;
         }
+
+        public async Task<List<PaymentDto>> FindAll()
+        {
+            List<Payment>? payments = await _paymentInterface.GetAll();
+            List<PaymentDto>? dtos = new(); 
+            foreach (var payment in payments)
+            {
+                var dto = PaymentMapper.EntityToDto(payment);
+                dtos.Add(dto);
+            }
+            return dtos;
+        }
+
+        public async Task<List<PaymentDto>> FindByUser(int userId)
+        {
+            List<Payment> payments = await _paymentInterface.GetByUserAsync(userId);
+            List<PaymentDto> dtos = new List<PaymentDto>(); 
+            foreach (var payment in payments)
+            {
+                dtos.Add(PaymentMapper.EntityToDto(payment));
+            }
+
+            return dtos;
+        }
     }
 }

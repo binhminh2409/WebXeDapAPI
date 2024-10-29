@@ -48,6 +48,7 @@ builder.Services.AddScoped<IPaymentInterface, PaymentRepository>();
 builder.Services.AddScoped<IOrderIService, OrderService>();
 builder.Services.AddScoped<IOrderInterface, OrderRepository>();
 builder.Services.AddScoped<ICartIService, CartService>();
+builder.Services.AddScoped<IOrderDetailsInterface, OrderDetailsRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -83,9 +84,6 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddSwaggerGen();
 
-Console.WriteLine("ValidIssuer: " + builder.Configuration["Jwt:ValidIssuer"]);
-Console.WriteLine("ValidAudience: " + builder.Configuration["Jwt:ValidAudience"]);
-Console.WriteLine("Secret: " + builder.Configuration["Jwt:Secret"]);
 builder.Services.AddAuthentication(option =>
 {
     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

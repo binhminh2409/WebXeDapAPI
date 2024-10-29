@@ -39,6 +39,16 @@ namespace WebXeDapAPI.Data
                 .Property(x => x.TotalPrice)
                 .HasColumnType("decimal(18,2)");
 
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.User) 
+                .WithMany() 
+                .HasForeignKey("UserId");
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Order) 
+                .WithMany() 
+                .HasForeignKey("OrderId"); 
+                
             modelBuilder.Entity<Brand>()
                 .Property(x => x.Status)
                 .HasConversion<string>();
@@ -91,9 +101,6 @@ namespace WebXeDapAPI.Data
                 .Property(x => x.Description)
                 .HasColumnType("text");
 
-            modelBuilder.Entity<Payment>()
-                .Property(p => p.TotalPrice)
-                .HasColumnType("decimal(18, 2)"); 
         }
     }
 }
