@@ -20,6 +20,7 @@ namespace WebXeDapAPI.Data
         public DbSet<Brand> Brands { get; set; }
         public DbSet<AccessToken> AccessTokens { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Like> Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
