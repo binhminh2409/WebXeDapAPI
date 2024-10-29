@@ -12,5 +12,7 @@ namespace WebXeDapAPI.Repository.Interface
         Task<Payment> CreateAsync(Payment payment);
 
         Task<List<Payment>> GetAll();
+
+        Task<List<Payment>> GetInTimeRange(DateTime startTime, DateTime endTime);
     }
 }

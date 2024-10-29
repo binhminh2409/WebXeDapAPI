@@ -1,6 +1,4 @@
-using WebXeDapAPI.Models.Enum;
-using System.ComponentModel.DataAnnotations;
-using System.Security;
+using System;
 
 namespace WebXeDapAPI.Dto
 {
@@ -11,5 +9,8 @@ namespace WebXeDapAPI.Dto
         public int OrderId { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; }
+
+        public DateTime CreatedTime { get; set; } // Add CreatedTime
+        public DateTime UpdatedTime { get; set; } // Add UpdatedTime
     }
 }

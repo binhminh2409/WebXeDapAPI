@@ -49,6 +49,16 @@ namespace WebXeDapAPI.Data
                 .HasOne(p => p.Order) 
                 .WithMany() 
                 .HasForeignKey("OrderId"); 
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.CreatedTime)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETUTCDATE()"); // Set default value for CreatedTime
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.UpdatedTime)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETUTCDATE()"); // Set default value for UpdatedTime
                 
             modelBuilder.Entity<Brand>()
                 .Property(x => x.Status)

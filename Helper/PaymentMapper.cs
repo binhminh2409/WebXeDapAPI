@@ -8,23 +8,32 @@ public class PaymentMapper
     public static Payment DtoToEntity(PaymentDto dto, User user, Order order)
     {
         if (dto == null) return null;
+        
         StatusPayment status = (StatusPayment)Enum.Parse(typeof(StatusPayment), dto.Status);
+        
         return new Payment
         {
-            User = user,  // Assuming `user` and `order` are fetched from database or passed in
+            User = user,  
             Order = order,
             TotalPrice = dto.TotalPrice,
-            Status = status
+            Status = status,
+            CreatedTime = DateTime.UtcNow, // Set current time when creating
+            UpdatedTime = DateTime.UtcNow  // Set current time when creating
         };
     }
+    public static PaymentDto EntityToDto(Payment payment)
+    {
+        if (payment == null) throw new ArgumentNullException(nameof(payment));
 
-    public static PaymentDto EntityToDto(Payment entity) {
-        return new PaymentDto {
-            Id = entity.Id,
-            UserId = entity.User.Id,
-            OrderId = entity.Order.Id,
-            TotalPrice = entity.TotalPrice,
-            Status = entity.Status.ToString()
+        return new PaymentDto
+        {
+            Id = payment.Id,
+            UserId = payment.User.Id,
+            OrderId = payment.Order.Id,
+            TotalPrice = payment.TotalPrice,
+            Status = payment.Status.ToString(), 
+            CreatedTime = payment.CreatedTime, 
+            UpdatedTime = payment.UpdatedTime  
         };
     }
 }
