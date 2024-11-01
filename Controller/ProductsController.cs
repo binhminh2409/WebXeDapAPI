@@ -246,14 +246,13 @@ namespace WebXeDapAPI.Controller
         }
 
         [HttpGet("GetAllProduct")]
-        //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetAllProduct()
         {
             try
             {
-                var products = _productsInterface.GetAllProducts();
+                var products = _productsService.GetAllProduct();
                 return Ok(new XBaseResult
                 {
                     data = products,
@@ -263,7 +262,7 @@ namespace WebXeDapAPI.Controller
                     message = "List",
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {
@@ -320,6 +319,7 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
         [HttpGet("GetProductsByNameAndColor")]
         //[Authorize]
         [ProducesResponseType(200)]

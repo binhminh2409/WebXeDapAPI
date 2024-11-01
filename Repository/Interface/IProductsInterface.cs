@@ -5,7 +5,7 @@ namespace WebXeDapAPI.Repository.Interface
 {
     public interface IProductsInterface
     {
-        List<ProductGetAllInfDto> GetAllProducts();
+        //List<ProductGetAllInfDto> GetAllProducts();
         List<ProductBrandInfDto> GetAllBrandName(string keyword);
         List<ProductTypeInfDto> GetAllTypeName(string keyword,int limit = 6);
         List<ProductPriceHasDecreasedInfDto> SearchProductsByPriceHasDecreased();

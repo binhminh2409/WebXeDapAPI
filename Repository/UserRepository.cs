@@ -13,7 +13,7 @@ namespace WebXeDapAPI.Repository
         }
         public User GetUser(int id)
         {
-            throw new NotImplementedException();
+            return _dbContext.Users.FirstOrDefault(u => u.Id == id);
         }
 
         public AccessToken GetValidTokenByUserId(int userId)

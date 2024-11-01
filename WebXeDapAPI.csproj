@@ -21,9 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Image\" />
     <None Update="appsettings.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Image\Slide\" />
   </ItemGroup>
 </Project>

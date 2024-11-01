@@ -10,9 +10,9 @@ namespace WebXeDapAPI.Service.Interfaces
 {
     public interface ICommentService
     {
-        Task<CommentDto> Create (CommentDto commentDto);
-        Task<Comment> Update (Comment comment);
-        Task<Comment> Delete (Comment comment);
-        Task<List<Comment>> GetCommentsByUserId(int userId);
+        Task<CommentDto> Create(CommentDto commentDto);
+        Task<Comment> Update(Comment comment);
+        Task<Comment> Delete(Comment comment);
+        Task<List<Comment>> GetCommentsByUserId(int userId, int productId);
     }
 }

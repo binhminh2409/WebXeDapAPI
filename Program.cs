@@ -1,4 +1,4 @@
-﻿﻿using WebXeDapAPI.Data;
+﻿using WebXeDapAPI.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +20,6 @@ using WebXeDapAPI.Repository;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -28,6 +27,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+// Apply goship settings
+builder.Services.Configure<GoshipSettings>(builder.Configuration.GetSection("GoshipSettings"));
 
 // Add services to the container.
 builder.Services.AddScoped<IUserIService, UserService>();
@@ -37,16 +39,28 @@ builder.Services.AddScoped<ISlideIService, SlideService>();
 builder.Services.AddScoped<ISlideInterface, SlideRepository>();
 builder.Services.AddScoped<ITypeIService, TypeService>();
 builder.Services.AddScoped<IBrandIService, BrandService>();
-builder.Services.AddScoped<IProductsIService ,ProductsService>();
+builder.Services.AddScoped<IProductsIService, ProductsService>();
 builder.Services.AddScoped<IProduct_DetailIService, Product_DetailService>();
 builder.Services.AddScoped<IProductsInterface, ProductsRepository>();
 builder.Services.AddScoped<IProducts_DrtailInterface, Products_DetailRepository>();
 builder.Services.AddScoped<ICartInterface, CartRepository>();
+builder.Services.AddScoped<IPaymentIService, PaymentService>();
+builder.Services.AddScoped<IPaymentInterface, PaymentRepository>();
 builder.Services.AddScoped<IOrderIService, OrderService>();
+builder.Services.AddScoped<IOrderInterface, OrderRepository>();
 builder.Services.AddScoped<ICartIService, CartService>();
+builder.Services.AddScoped<IOrderDetailsInterface, OrderDetailsRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
 
+builder.Services.AddScoped<IDeliveryInterface, DeliveryRepository>();
+builder.Services.AddScoped<IDeliveryIService, DeliveryService>();
+builder.Services.AddHttpClient<IDeliveryIService, DeliveryService>();
+
+
+// VietQr setting
+builder.Services.AddScoped<IVietqrService, VietqrService>();
+builder.Services.AddHttpClient<IVietqrService, VietqrService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -82,9 +96,6 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddSwaggerGen();
 
-Console.WriteLine("ValidIssuer: " + builder.Configuration["Jwt:ValidIssuer"]);
-Console.WriteLine("ValidAudience: " + builder.Configuration["Jwt:ValidAudience"]);
-Console.WriteLine("Secret: " + builder.Configuration["Jwt:Secret"]);
 builder.Services.AddAuthentication(option =>
 {
     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -115,9 +126,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigins", builder =>
     {
-        builder.WithOrigins("http://localhost:4200")
+        builder.AllowAnyOrigin() // Cho phép tất cả miền
             .AllowAnyHeader()
-            .WithMethods("POST","PUT", "GET","DELETE", "OPTIONS")
+            .WithMethods("POST", "PUT", "GET", "DELETE", "OPTIONS")
             .AllowCredentials();
     });
 });
@@ -127,7 +138,7 @@ var app = builder.Build();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"C:\Users\xuant\OneDrive\Máy tính\WebAPIXE2\WebXeDapApi", "Image")),
+        Path.Combine(@"D:\Thai\Porject_Ky_4\WebXeDapApi", "Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 

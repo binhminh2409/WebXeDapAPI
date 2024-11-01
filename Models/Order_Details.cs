@@ -13,6 +13,7 @@ namespace WebXeDapAPI.Models
         public int Quantity { get; set; }
         public decimal TotalPrice { get; set; }
         public string Image { get; set; }
+        public string Color { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }
