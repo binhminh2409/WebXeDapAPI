@@ -1,4 +1,4 @@
-﻿using WebXeDapAPI.Dto;
+using WebXeDapAPI.Dto;
 using WebXeDapAPI.Models;
 
 namespace WebXeDapAPI.Repository.Interface
@@ -7,5 +7,7 @@ namespace WebXeDapAPI.Repository.Interface
     {
         List<Order> GetByUser(int userId);
         Order GetById(int orderId);
+
+        Order Update(Order order);
     }
 }

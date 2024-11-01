@@ -157,7 +157,8 @@ namespace WebXeDapAPI.Service
             }
             foreach (var info in result)
             {
-                Console.WriteLine($"GuId: {((GetCartInfDto)info).GuId}");
+
+                Console.WriteLine($"GuId: {((GetCartInfDto)info).GuId}"); 
             }
 
             return result;
@@ -222,6 +223,63 @@ namespace WebXeDapAPI.Service
             try
             {
                 var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProductId == createProductId);
+                if (cart == null)
+                {
+                    throw new Exception("UserId & ProducId not found");
+                }
+                var product = _dbContext.Products.FirstOrDefault(x => x.Id == createProductId);
+                if (product == null)
+                {
+                    throw new Exception("ProducId not found");
+                }
+                cart.Quantity -= 1;
+                cart.TotalPrice = product.Price * cart.Quantity;
+                if (cart.Quantity <= 0)
+                {
+                    _dbContext.Remove(cart);
+                    return "Shopping cart item removed successfully";
+                }
+                _dbContext.SaveChanges();
+                return "ReduceShoppingCart Successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while updating the Cart quantity :{ex.Message}");
+            }
+        }
+
+        //Tăng số lượng trong giỏ hàng(guiId)
+        public string IncreaseQuantityShoppingCartGuiId(string guiId, int createProductId)
+        {
+            try
+            {
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.GuId == guiId && x.ProductId == createProductId);
+                if (cart == null)
+                {
+                    throw new Exception("UserId & ProducId not found");
+                }
+                var product = _dbContext.Products.FirstOrDefault(x => x.Id == createProductId);
+                if (product == null)
+                {
+                    throw new Exception("ProducId not found");
+                }
+                cart.Quantity += 1;
+                cart.TotalPrice = product.Price * cart.Quantity;
+                _dbContext.SaveChanges();
+                return "Update Successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while updating the Cart quantity :{ex.Message}");
+            }
+        }
+
+        //giảm số lượng trong giỏ hàng
+        public object ReduceShoppingCartGuiId(string guiId, int createProductId)
+        {
+            try
+            {
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.GuId == guiId && x.ProductId == createProductId);
                 if (cart == null)
                 {
                     throw new Exception("UserId & ProducId not found");

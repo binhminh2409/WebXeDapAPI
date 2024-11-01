@@ -64,6 +64,7 @@ namespace WebXeDapAPI.Controller
                 {
                     return BadRequest("Email and password are required.");
                 }
+
                 User user = _userIService.Login(requestDto);
 
                 string jwtToken = _token.CreateToken(user);
@@ -74,20 +75,18 @@ namespace WebXeDapAPI.Controller
                     Secure = true,
                     Expires = DateTime.UtcNow.AddMinutes(3000),
                 };
+
                 HttpContext.Response.Cookies.Append("authenticationToken", jwtToken, cookieOptions);
-                return Ok(new XBaseResult
-                {
-                    data = jwtToken,
-                    success = true,
-                    httpStatusCode = (int)HttpStatusCode.OK,
-                    message = "Login successfully"
-                });
+
+                // Chỉ trả về mã token
+                return Ok(jwtToken);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
 
         [HttpPost("CreateAdmin")]
         [ProducesResponseType(200)]
@@ -117,29 +116,26 @@ namespace WebXeDapAPI.Controller
         }
 
         [HttpPost("logout")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
+        [Authorize]
         public IActionResult Logout()
         {
             try
             {
-                // Lấy thông tin người dùng từ token
                 var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
                 {
+                    // Gọi hàm kiểm tra token
                     var tokenStatus = _token.CheckTokenStatus(userId);
 
                     if (tokenStatus == StatusToken.Expired)
                     {
-                        // Token không còn hợp lệ, từ chối yêu cầu
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
-                    // Gọi service để đăng xuất người dùng
-                    var result = _userIService.logout(userId);
 
+                    // Gọi service logout
+                    var result = _userIService.logout(userId);
                     if (result)
                     {
-                        // Xóa cookei người dùng
                         HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                         return Ok("Logged out successfully.");
                     }
@@ -242,7 +238,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        [HttpPut("GetImage")]
+        [HttpGet("GetImage")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetUserImage(int userId)
@@ -269,5 +265,33 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
+        //[HttpGet("GetImage")]
+        //[ProducesResponseType(200)]
+        //[ProducesResponseType(400)]
+        //public async Task<IActionResult> GetUserImage(int userId)
+        //{
+        //    try
+        //    {
+        //        var result = await _userIService.GetImage(userId);
+
+        //        return Ok(new XBaseResult
+        //        {
+        //            data = result,
+        //            success = true,
+        //            httpStatusCode = (int)HttpStatusCode.OK,
+        //            message = "Get User successfully"
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new XBaseResult
+        //        {
+        //            success = false,
+        //            httpStatusCode = (int)HttpStatusCode.BadRequest,
+        //            message = ex.Message
+        //        });
+        //    }
+        //}
     }
 }
