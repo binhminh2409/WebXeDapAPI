@@ -7,7 +7,6 @@ namespace WebXeDapAPI.Repository.Interface
     {
         List<Order> GetByUser(int userId);
         Order GetById(int orderId);
-
         Order Update(Order order);
     }
 }

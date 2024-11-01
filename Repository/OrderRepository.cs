@@ -25,7 +25,8 @@ namespace WebXeDapAPI.Repository
 
         public List<Order> GetByUser(int userId)
         {
-            throw new NotImplementedException();
+            List<Order>? orders = _dbContext.Orders.Where(o => o.UserID == userId).ToList();
+            return orders;
         }
 
         public Order Update(Order order)
@@ -35,7 +36,7 @@ namespace WebXeDapAPI.Repository
                 throw new ArgumentNullException(nameof(order), "Order cannot be null.");
             }
 
-            // Retrieve the existing order from the database (example using some repository or ORM)
+            // Retrieve the existing order from the database
             Order? existingOrder = _dbContext.Orders.FirstOrDefault(o => o.Id == order.Id);
             if (existingOrder == null)
             {
@@ -43,7 +44,6 @@ namespace WebXeDapAPI.Repository
             }
 
             // Update the fields of the existing order with the new data
-            existingOrder.Id = order.Id;
             existingOrder.No_ = order.No_;
             existingOrder.UserID = order.UserID;
             existingOrder.ShipName = order.ShipName;
@@ -52,8 +52,9 @@ namespace WebXeDapAPI.Repository
             existingOrder.ShipPhone = order.ShipPhone;
             existingOrder.Status = order.Status;
 
-            // Persist the changes to the database
+            // Mark entity as modified and save changes
             _dbContext.Orders.Update(existingOrder);
+            _dbContext.SaveChanges(); 
 
             // Return the updated order
             return existingOrder;

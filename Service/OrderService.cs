@@ -17,11 +17,14 @@ namespace WebXeDapAPI.Service
         private readonly ApplicationDbContext _dbContext;
         private readonly ICartInterface _cartInterface;
         private readonly IOrderDetailsInterface _orderDetailsInterface;
-        public OrderService(ApplicationDbContext dbContext,ICartInterface cartInterface, IOrderDetailsInterface orderDetailsInterface)
+
+        private readonly IOrderInterface _orderInterface;
+        public OrderService(ApplicationDbContext dbContext,ICartInterface cartInterface, IOrderDetailsInterface orderDetailsInterface, IOrderInterface orderInterface)
         {
             _cartInterface = cartInterface;
             _dbContext = dbContext;
             _orderDetailsInterface = orderDetailsInterface;
+            _orderInterface = orderInterface;
         }
         public (Order, List<Order_Details>) Create([FromQuery] OrderDto orderDto)
         {
@@ -126,6 +129,65 @@ namespace WebXeDapAPI.Service
             string encryptedDateTime = Convert.ToBase64String(dateTimeBytes); // "Encrypt" it by converting to base64
 
             return $"OR-{formattedNumber}-{encryptedDateTime}";
+        }
+
+        public List<OrderDto> GetByUser(int userId)
+        {
+            List<Order>? orders = _orderInterface.GetByUser(userId);
+            List<OrderDto>? dtos = new();
+            foreach (var order in orders)
+            {
+                OrderDto dto = new OrderDto{
+                    Id = order.Id,
+                    ShipAddress = order.ShipAddress,
+                    ShipEmail = order.ShipEmail,
+                    ShipName = order.ShipName,
+                    ShipPhone = order.ShipPhone,
+                    UserID = order.UserID,
+                    Status = order.Status.ToString(),
+                    No_ = order.No_
+                };
+                dtos.Add(dto);
+            }
+            return dtos;
+        }
+
+        public List<Order_Details> GetDetailsByUser(int userId)
+        {
+            List<Order_Details>? order_Details = _orderDetailsInterface.GetByUser(userId);
+            return order_Details;
+        }
+
+        public OrderWithDetailDto GetByIdWithDetail(int orderId)
+        {
+            Order order = _orderInterface.GetById(orderId);
+            Order_Details order_Details = _orderDetailsInterface.GetByOrderId(order.No_);
+            OrderWithDetailDto orderWithDetailDto = new OrderWithDetailDto{
+                Id = order.Id,
+                UserID = order.UserID,
+                ShipName = order.ShipName,
+                ShipAddress = order.ShipAddress,
+                ShipEmail = order.ShipEmail,
+                ShipPhone = order.ShipPhone,
+                No_ = order.No_,
+                Status = order.Status.ToString(), // Convert enum to string if needed
+        
+                OrderDetails = new OrderDetailDto
+                {
+                    Id = order_Details.Id,
+                    OrderID = order_Details.OrderID,
+                    ProductID = order_Details.ProductID,
+                    ProductName = order_Details.ProductName,
+                    PriceProduc = order_Details.PriceProduc,
+                    Quantity = order_Details.Quantity,
+                    TotalPrice = order_Details.TotalPrice,
+                    Image = order_Details.Image,
+                    Color = order_Details.Color,
+                    CreatedDate = order_Details.CreatedDate
+                }
+            };
+
+            return orderWithDetailDto;
         }
     }
 }

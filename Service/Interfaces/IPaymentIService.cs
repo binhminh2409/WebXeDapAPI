@@ -11,5 +11,8 @@ namespace WebXeDapAPI.Service.Interfaces
 
         public Task<List<PaymentDto>> FindByUser(int userId);
  
+        public Task<PaymentDto> ConfirmAsync(int paymentId);
+
+        public Task<PaymentDto> UpdateStatusAsync(PaymentDto paymentDto);
     }
 }

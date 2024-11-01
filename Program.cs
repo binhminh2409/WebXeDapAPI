@@ -20,7 +20,6 @@ using WebXeDapAPI.Repository;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -28,6 +27,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+// Apply goship settings
+builder.Services.Configure<GoshipSettings>(builder.Configuration.GetSection("GoshipSettings"));
 
 // Add services to the container.
 builder.Services.AddScoped<IUserIService, UserService>();
@@ -50,6 +52,15 @@ builder.Services.AddScoped<ICartIService, CartService>();
 builder.Services.AddScoped<IOrderDetailsInterface, OrderDetailsRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
+
+builder.Services.AddScoped<IDeliveryInterface, DeliveryRepository>();
+builder.Services.AddScoped<IDeliveryIService, DeliveryService>();
+builder.Services.AddHttpClient<IDeliveryIService, DeliveryService>();
+
+
+// VietQr setting
+builder.Services.AddScoped<IVietqrService, VietqrService>();
+builder.Services.AddHttpClient<IVietqrService, VietqrService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -127,7 +138,7 @@ var app = builder.Build();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"D:\Coding\WebXeDap\WebXeDapApi\WebXeDapApi", "Image")),
+        Path.Combine(@"E:\Code\WebXeDap\WebXeDapAPI", "Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 
