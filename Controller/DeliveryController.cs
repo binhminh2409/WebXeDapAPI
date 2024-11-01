@@ -1,159 +1,57 @@
-using WebXeDapAPI.Common;
-using WebXeDapAPI.Dto;
-using WebXeDapAPI.Models.Enum;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Security.Claims;
-using WebXeDapAPI.Helper;
+using WebXeDapAPI.Dto;
 using WebXeDapAPI.Service.Interfaces;
+using System.Net;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using WebXeDapAPI.Helper;
 using WebXeDapAPI.Models;
-
+using WebXeDapAPI.Common;
+using System.Security.Claims;
+using WebXeDapAPI.Models.Enum;
 
 namespace WebXeDapAPI.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PaymentController : ControllerBase
+    public class DeliveryController : ControllerBase
     {
-        private readonly IPaymentIService _paymentIService;
-        private readonly IUserIService _userIService;
+        private readonly IDeliveryIService _deliveryService;
         private readonly Token _token;
-        private readonly IVietqrService _vietqrService;
 
-        public PaymentController(IPaymentIService paymentIService,
-            Token token,
-            IUserIService userIService,
-            IVietqrService vietqrService)
+        public DeliveryController(IDeliveryIService deliveryService, Token token)
         {
-            _paymentIService = paymentIService;
+            _deliveryService = deliveryService;
             _token = token;
-            _userIService = userIService;
-            _vietqrService = vietqrService;
         }
 
-        [HttpGet("All")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> GetAllPayments()
-        {
-            try
-            {
-                var userIdClaim = HttpContext.User.FindFirst("Id");
-
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
-                {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var payments = await _paymentIService.FindAll();
-
-                    return Ok(new XBaseResult
-                    {
-                        data = payments,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Get all payments successfully",
-                        totalCount = payments?.Count ?? 0
-                    });
-                }
-                return BadRequest("Invalid user ID.");
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new XBaseResult
-                {
-                    success = false,
-                    httpStatusCode = (int)HttpStatusCode.BadRequest,
-                    message = "An error occurred while getting payments: " + ex.Message
-                });
-            }
-        }
-
-        [HttpGet("MyPayments")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> GetMyPayments()
-        {
-            try
-            {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
-                {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var payments = await _paymentIService.FindByUser(userId);
-
-                    return Ok(new XBaseResult
-                    {
-                        data = payments,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Get all my payments successfully",
-                        totalCount = payments?.Count ?? 0
-                    });
-                }
-                return BadRequest("Invalid user ID.");
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new XBaseResult
-                {
-                    success = false,
-                    httpStatusCode = (int)HttpStatusCode.BadRequest,
-                    message = "An error occurred while getting payments: " + ex.Message
-                });
-            }
-        }
 
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreatePayment([FromBody] PaymentDto paymentDto)
+        public async Task<ActionResult<DeliveryDto>> Create([FromBody] PaymentDto paymentDto, string cityFrom, string cityTo, string districtFrom, string districtTo)
         {
             try
             {
-                if (paymentDto == null)
-                {
-                    return BadRequest(new XBaseResult
-                    {
-                        success = false,
-                        httpStatusCode = (int)HttpStatusCode.BadRequest,
-                        message = "Invalid payment id"
-                    });
-                }
                 var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
 
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
                 {
                     var tokenStatus = _token.CheckTokenStatus(userId);
-                    paymentDto.UserId = userId;
                     if (tokenStatus == StatusToken.Expired)
                     {
                         // Token không còn hợp lệ, từ chối yêu cầu
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var payment = await _paymentIService.CreateAsync(paymentDto);
+                    var deliveryDto = await _deliveryService.CreateAsync(paymentDto, cityFrom, cityTo, districtFrom, districtTo);
 
                     return Ok(new XBaseResult
                     {
-                        data = payment,
+                        data = deliveryDto,
                         success = true,
                         httpStatusCode = (int)HttpStatusCode.OK,
-                        totalCount = payment.Id,
-                        message = "Payment created successfully"
+                        message = "Delivery created"
                     });
                 }
                 return BadRequest("Invalid user ID.");
@@ -165,15 +63,15 @@ namespace WebXeDapAPI.Controller
                 {
                     success = false,
                     httpStatusCode = (int)HttpStatusCode.BadRequest,
-                    message = "An error occurred while creating payment: " + ex.Message
+                    message = "An error occurred while creating delivery: " + ex.Message
                 });
             }
         }
 
-        [HttpPut("Confirm")]
+        [HttpPost("All")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> ConfirmPayment([FromQuery] int paymentId)
+        public async Task<ActionResult<DeliveryDto>> GetAll()
         {
             try
             {
@@ -188,15 +86,14 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var confirmedPayment = await _paymentIService.ConfirmAsync(paymentId);
+                    var deliveryDtos = await _deliveryService.FindAll();
 
                     return Ok(new XBaseResult
                     {
-                        data = confirmedPayment,
+                        data = deliveryDtos,
                         success = true,
                         httpStatusCode = (int)HttpStatusCode.OK,
-                        totalCount = confirmedPayment.Id,
-                        message = "Payment confirmed"
+                        message = "Delivery created"
                     });
                 }
                 return BadRequest("Invalid user ID.");
@@ -208,16 +105,15 @@ namespace WebXeDapAPI.Controller
                 {
                     success = false,
                     httpStatusCode = (int)HttpStatusCode.BadRequest,
-                    message = "An error occurred while confirming payment: " + ex.Message
+                    message = "An error occurred while creating delivery: " + ex.Message
                 });
             }
         }
 
-        
-        [HttpPut("UpdateStatus")]
+        [HttpGet("Delivery/{deliveryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> UpdateStatusPayment([FromQuery] PaymentDto paymentDto)
+        public async Task<ActionResult<DeliveryDto>> GetById(int deliveryId)
         {
             try
             {
@@ -232,15 +128,14 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var confirmedPayment = await _paymentIService.UpdateStatusAsync(paymentDto);
+                    var deliveryDto = await _deliveryService.FindById(deliveryId);
 
                     return Ok(new XBaseResult
                     {
-                        data = confirmedPayment,
+                        data = deliveryDto,
                         success = true,
                         httpStatusCode = (int)HttpStatusCode.OK,
-                        totalCount = confirmedPayment.Id,
-                        message = "Payment confirmed"
+                        message = "Delivery retreived"
                     });
                 }
                 return BadRequest("Invalid user ID.");
@@ -252,23 +147,94 @@ namespace WebXeDapAPI.Controller
                 {
                     success = false,
                     httpStatusCode = (int)HttpStatusCode.BadRequest,
-                    message = "An error occurred while confirming payment: " + ex.Message
+                    message = "An error occurred while creating delivery: " + ex.Message
                 });
             }
         }
 
-        [HttpGet("generate-qr")]
-        public async Task<IActionResult> GenerateQrCode(string bank, string accountNumber, string amount, string ndck, string fullName)
+        [HttpGet("Delivery/Order/{orderId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<DeliveryDto>> GetByOrdertId(int orderId)
         {
             try
             {
-                var qrCodeBytes = await _vietqrService.GenerateQrCodeAsync(bank, accountNumber, amount, ndck, fullName);
-                return File(qrCodeBytes, "image/png");
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    var tokenStatus = _token.CheckTokenStatus(userId);
+                    if (tokenStatus == StatusToken.Expired)
+                    {
+                        // Token không còn hợp lệ, từ chối yêu cầu
+                        return Unauthorized("The token is no longer valid. Please log in again.");
+                    }
+
+                    var deliveryDto = await _deliveryService.FindByOrderId(orderId);
+
+                    return Ok(new XBaseResult
+                    {
+                        data = deliveryDto,
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        message = "Delivery retreived"
+                    });
+                }
+                return BadRequest("Invalid user ID.");
+
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "An error occurred while creating delivery: " + ex.Message
+                });
+            }
+        }
+
+        [HttpGet("MyDeliveries")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<DeliveryDto>> GetByUser()
+        {
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    var tokenStatus = _token.CheckTokenStatus(userId);
+                    if (tokenStatus == StatusToken.Expired)
+                    {
+                        // Token không còn hợp lệ, từ chối yêu cầu
+                        return Unauthorized("The token is no longer valid. Please log in again.");
+                    }
+
+                    var deliveryDto = await _deliveryService.FindByUser(userId);
+
+                    return Ok(new XBaseResult
+                    {
+                        data = deliveryDto,
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        message = "Delivery retreived"
+                    });
+                }
+                return BadRequest("Invalid user ID.");
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "An error occurred while creating delivery: " + ex.Message
+                });
             }
         }
     }
 }
+

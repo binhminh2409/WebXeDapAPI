@@ -21,9 +21,29 @@ namespace WebXeDapAPI.Data
         public DbSet<AccessToken> AccessTokens { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Like> Likes { get; set; }
+        public DbSet<Delivery> Deliveries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Delivery>()
+                .Property(d => d.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Delivery>()
+                .Property(d => d.CreatedTime)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            modelBuilder.Entity<Delivery>()
+                .Property(d => d.UpdatedTime)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            modelBuilder.Entity<Delivery>()
+                .HasOne(d => d.Payment)
+                .WithOne()
+                .HasForeignKey<Delivery>("PaymentId");
+
             modelBuilder.Entity<Slide>()
                 .Property(x => x.Status)
                 .HasConversion<string>();
@@ -41,25 +61,33 @@ namespace WebXeDapAPI.Data
                 .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Payment>()
-                .HasOne(p => p.User) 
-                .WithMany() 
+                .HasOne(p => p.User)
+                .WithMany()
                 .HasForeignKey("UserId");
 
             modelBuilder.Entity<Payment>()
-                .HasOne(p => p.Order) 
-                .WithMany() 
-                .HasForeignKey("OrderId"); 
+                .HasOne(p => p.Order)
+                .WithMany()
+                .HasForeignKey("OrderId");
 
             modelBuilder.Entity<Payment>()
                 .Property(p => p.CreatedTime)
                 .HasColumnType("datetime")
-                .HasDefaultValueSql("GETUTCDATE()"); // Set default value for CreatedTime
+                .HasDefaultValueSql("GETUTCDATE()");
 
             modelBuilder.Entity<Payment>()
                 .Property(p => p.UpdatedTime)
                 .HasColumnType("datetime")
-                .HasDefaultValueSql("GETUTCDATE()"); // Set default value for UpdatedTime
-                
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.ExtraFee)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Method)
+                .HasConversion<string>();
+
             modelBuilder.Entity<Brand>()
                 .Property(x => x.Status)
                 .HasConversion<string>();
