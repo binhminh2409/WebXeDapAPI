@@ -11,5 +11,6 @@ namespace WebXeDapAPI.Dto
         public decimal TotalPrice { get; set; }
         public int Quantity { get; set; }
         public string Image { get; set; }
+        public string GuId { get; set; }
     }
 }

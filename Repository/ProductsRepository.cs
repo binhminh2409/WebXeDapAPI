@@ -28,19 +28,19 @@ namespace WebXeDapAPI.Repository
                 .ToList();
         }
 
-        public List<ProductGetAllInfDto> GetAllProducts()
-        {
-            return _dbContext.Products
-                 .Select(x => new ProductGetAllInfDto
-                 {
-                     Id = x.Id,
-                     ProductName = x.ProductName,
-                     Price = x.Price,
-                     PriceHasDecreased = x.PriceHasDecreased,
-                     Image = x.Image,
-                 })
-                 .ToList();
-        }
+        //public List<ProductGetAllInfDto> GetAllProducts()
+        //{
+        //    return _dbContext.Products
+        //         .Select(x => new ProductGetAllInfDto
+        //         {
+        //             Id = x.Id,
+        //             ProductName = x.ProductName,
+        //             Price = x.Price,
+        //             PriceHasDecreased = x.PriceHasDecreased,
+        //             Image = x.Image,
+        //         })
+        //         .ToList();
+        //}
 
         public List<ProductTypeInfDto> GetAllTypeName(string keyword, int limit = 8)
         {

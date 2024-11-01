@@ -13,6 +13,16 @@ namespace WebXeDapAPI.Repository
             _dbContext = dbContext;
         }
 
+        public ICollection<Slide> GetById(int id)
+        {
+            var slides = _dbContext.Slides
+                .Where(x => x.Status == StatusSlide.Active && x.Id == id)
+                .OrderBy(x => x.Sort)
+                .ToList();
+
+            return slides;
+        }
+
         public Slide GetSlideImage(int slideId)
         {
             return _dbContext.Slides.FirstOrDefault(x => x.Id == slideId);

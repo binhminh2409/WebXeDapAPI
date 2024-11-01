@@ -7,6 +7,7 @@ namespace WebXeDapAPI.Models
     {
         [Key]
         public int Id { get; set; }
+        public string GuId { get; set; }
         public int UserId { get; set; }
         public int ProductId { get; set; }
         public string ProductName { get; set; }
@@ -14,6 +15,7 @@ namespace WebXeDapAPI.Models
         public decimal TotalPrice { get; set; }
         public int Quantity { get; set; }
         public string Image { get; set; }
+        public string Color { get; set; }
         public DateTime Create { get; set; }
         public StatusCart Status { get; set; }
 

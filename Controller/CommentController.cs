@@ -35,7 +35,7 @@ namespace WebXeDapAPI.Controller
                     message = "Create Commnent Successfully"
                 });
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {
@@ -47,11 +47,11 @@ namespace WebXeDapAPI.Controller
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetById(int userId)
+        public async Task<IActionResult> GetById(int userId, int productId)
         {
             try
             {
-                var result = await _commentService.GetCommentsByUserId(userId);
+                var result = await _commentService.GetCommentsByUserId(userId, productId);
                 return Ok(new XBaseResult
                 {
                     data = result,

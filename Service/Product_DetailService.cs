@@ -22,40 +22,53 @@ namespace WebXeDapAPI.Service
         {
             try
             {
-                var products = _dbContext.Products.SingleOrDefault(x => x.Id == product_DetailDto.ProductID);
+                // Kiểm tra ID sản phẩm có tồn tại không
+                var product = await _dbContext.Products.SingleOrDefaultAsync(x => x.Id == product_DetailDto.ProductID);
 
-                if (products == null)
+                if (product == null)
                 {
                     throw new Exception("Product not found");
                 }
 
-                // Tạo danh sách lưu trữ đường dẫn hình ảnh
+                // Danh sách lưu trữ đường dẫn hình ảnh
                 List<string> imagePaths = new List<string>();
 
                 // Lưu từng ảnh và thêm đường dẫn vào danh sách
                 foreach (var image in product_DetailDto.Imgage)
                 {
-                    var imagePath = await SaveImageAsync(image);
-                    imagePaths.Add(imagePath);
+                    try
+                    {
+                        var imagePath = await SaveImageAsync(image);
+                        imagePaths.Add(imagePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Ghi lại lỗi trong khi lưu hình ảnh
+                        throw new Exception($"Error saving image: {ex.Message}", ex);
+                    }
                 }
 
+                // Tạo đối tượng Product_Details
                 Product_Details product_Details = new Product_Details
                 {
-                    ProductID = products.Id,
-                    BrandId = products.BrandId,
-                    Price = products.Price,
-                    PriceHasDecreased = products.PriceHasDecreased,
+                    ProductID = product.Id,
+                    BrandId = product.BrandId,
+                    Price = product.Price,
+                    PriceHasDecreased = product.PriceHasDecreased,
                     Imgage = string.Join(";", imagePaths), // Kết hợp các đường dẫn thành một chuỗi
                     Weight = product_DetailDto.Weight,
                     Other_Details = product_DetailDto.Other_Details,
                 };
 
+                // Thêm vào DbContext và lưu thay đổi
                 _dbContext.Product_Details.Add(product_Details);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync(); // Thay đổi sang async
                 return product_Details;
             }
             catch (Exception ex)
             {
+                // Ghi lại chi tiết lỗi
+                // Bạn có thể sử dụng một logger để ghi lại thông tin lỗi ở đây
                 throw new Exception("There is an error when creating a Product_Detail", ex);
             }
         }

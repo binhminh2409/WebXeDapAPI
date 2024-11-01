@@ -280,22 +280,26 @@ namespace WebXeDapAPI.Service
 
         public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(decimal minPrice, decimal maxPrice, string? brandsName)
         {
-            List<ProductGetAllInfPriceDto> products = _productsInterface.GetProductsWithinPriceRangeAndBrand();
+            // Giả sử _context là DbContext chứa các DbSet cho Product và Type
+            var products = (from p in _dbContext.Products
+                            join t in _dbContext.Types on p.TypeId equals t.Id
+                            where t.ProductType == "Xe đạp"
+                            select new ProductGetAllInfPriceDto
+                            {
+                                Id = p.Id,
+                                ProductName = p.ProductName,
+                                Price = p.Price,
+                                PriceHasDecreased = p.PriceHasDecreased,
+                                Image = p.Image,
+                                BrandNamer = p.brandName
+                            }).ToList();
 
-            List<ProductGetAllInfPriceDto> result = products
+            // Lọc thêm theo khoảng giá và thương hiệu
+            var result = products
                 .Where(p => p.Price >= minPrice && p.Price <= maxPrice
                              && (string.IsNullOrEmpty(brandsName) || p.BrandNamer.Equals(brandsName, StringComparison.OrdinalIgnoreCase)))
                 .GroupBy(p => p.ProductName)  // Nhóm theo ProductName
                 .Select(group => group.First())  // Chọn sản phẩm đầu tiên trong mỗi nhóm (loại bỏ trùng)
-                .Select(p => new ProductGetAllInfPriceDto
-                {
-                    Id = p.Id,
-                    ProductName = p.ProductName,
-                    Price = p.Price,
-                    PriceHasDecreased = p.PriceHasDecreased,
-                    Image = p.Image,
-                    BrandNamer = p.BrandNamer
-                })
                 .ToList();
 
             return result;
@@ -423,6 +427,25 @@ namespace WebXeDapAPI.Service
             {
                 throw new Exception($"An error occurred while fetching the products with name '{productName}'", ex);
             }
+        }
+
+        public List<ProductGetAllInfDto> GetAllProduct()
+        {
+            var products = _dbContext.Products
+                .Select(product => new ProductGetAllInfDto
+                {
+                    Id = product.Id,
+                    ProductName = product.ProductName,
+                    Price = product.Price,
+                    PriceHasDecreased = product.PriceHasDecreased,
+                    Description = product.Description,
+                    Quantity = product.Quantity,
+                    Image = null,
+                    Create = product.Create,
+                    Status = product.Status.ToString()
+                }).
+                ToList();
+            return products;
         }
     }
 }

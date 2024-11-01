@@ -18,5 +18,6 @@ namespace WebXeDapAPI.Service.Interfaces
         ProductDetailWithColors GetProductsByNameAndColor(string productName, string? color);
         Task<List<GetViewProductType>> GetProductType(string ProductType);
         Task<List<ProductTypeInfDto>> GetProductName(string productName);
+        List<ProductGetAllInfDto> GetAllProduct();
     }
 }
