@@ -283,7 +283,7 @@ namespace WebXeDapAPI.Service
             // Giả sử _context là DbContext chứa các DbSet cho Product và Type
             var products = (from p in _dbContext.Products
                             join t in _dbContext.Types on p.TypeId equals t.Id
-                            where t.ProductType == "Xe đạp"                    
+                            where t.ProductType == "Xe đạp"
                             select new ProductGetAllInfPriceDto
                             {
                                 Id = p.Id,
@@ -427,6 +427,25 @@ namespace WebXeDapAPI.Service
             {
                 throw new Exception($"An error occurred while fetching the products with name '{productName}'", ex);
             }
+        }
+
+        public List<ProductGetAllInfDto> GetAllProduct()
+        {
+            var products = _dbContext.Products
+                .Select(product => new ProductGetAllInfDto
+                {
+                    Id = product.Id,
+                    ProductName = product.ProductName,
+                    Price = product.Price,
+                    PriceHasDecreased = product.PriceHasDecreased,
+                    Description = product.Description,
+                    Quantity = product.Quantity,
+                    Image = null,
+                    Create = product.Create,
+                    Status = product.Status.ToString()
+                }).
+                ToList();
+            return products;
         }
     }
 }

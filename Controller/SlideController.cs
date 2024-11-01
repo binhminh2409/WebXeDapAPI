@@ -63,7 +63,7 @@ namespace WebXeDapAPI.Controller
         [HttpPut("Update")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult UpdateSlide([FromBody]UpdateSlideDto updateSlideDto)
+        public IActionResult UpdateSlide([FromBody] UpdateSlideDto updateSlideDto)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace WebXeDapAPI.Controller
                     message = "Update Slide successfully"
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {
@@ -96,9 +96,9 @@ namespace WebXeDapAPI.Controller
         [ProducesResponseType(400)]
         public IActionResult deleteSlide(int Id)
         {
-            if(Id == null)
+            if (Id == null)
             {
-                throw new ArgumentNullException(nameof(Id),"Slide not found");
+                throw new ArgumentNullException(nameof(Id), "Slide not found");
             }
             var delete = _slideIService.Delete(Id);
             return Ok(delete);
@@ -106,7 +106,7 @@ namespace WebXeDapAPI.Controller
         [HttpGet("GetList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult getSlide() 
+        public IActionResult getSlide()
         {
             try
             {

@@ -126,7 +126,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigins", builder =>
     {
-        builder.WithOrigins("http://localhost:4200")
+        builder.AllowAnyOrigin() // Cho phép tất cả miền
             .AllowAnyHeader()
             .WithMethods("POST", "PUT", "GET", "DELETE", "OPTIONS")
             .AllowCredentials();
@@ -138,7 +138,7 @@ var app = builder.Build();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"E:\Code\WebXeDap\WebXeDapAPI", "Image")),
+        Path.Combine(@"D:\Thai\Porject_Ky_4\WebXeDapApi", "Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 

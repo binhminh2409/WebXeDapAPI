@@ -14,7 +14,7 @@ namespace WebXeDapAPI.Controller
     {
         private readonly ICartIService _cartService;
         private readonly Token _token;
-        public CartController(ICartIService cartService,Token token)
+        public CartController(ICartIService cartService, Token token)
         {
             _token = token;
             _cartService = cartService;
@@ -55,7 +55,7 @@ namespace WebXeDapAPI.Controller
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult IncreaseQuantityShoppingCart([FromQuery]int UserId,int createProductId)
+        public IActionResult IncreaseQuantityShoppingCart([FromQuery] int UserId, int createProductId)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace WebXeDapAPI.Controller
                 //        return Unauthorized("The token is no longer valid. Please log in again.");
                 //    }
                 //}
-                if(UserId == null && createProductId == null)
+                if (UserId == null && createProductId == null)
                 {
                     throw new Exception("UserId && createProductId not found");
                 }
@@ -80,7 +80,7 @@ namespace WebXeDapAPI.Controller
                     httpStatusCode = (int)HttpStatusCode.OK,
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {
@@ -94,7 +94,7 @@ namespace WebXeDapAPI.Controller
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult ReduceShoppingCart([FromQuery]int UserId,int createProductId)
+        public IActionResult ReduceShoppingCart([FromQuery] int UserId, int createProductId)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace WebXeDapAPI.Controller
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetCart([FromQuery]int userId)
+        public IActionResult GetCart([FromQuery] int userId)
         {
             try
             {
@@ -148,7 +148,7 @@ namespace WebXeDapAPI.Controller
                 //        return Unauthorized("The token is no longer valid. Please log in again.");
                 //    }
                 //}
-                if(userId == null)
+                if (userId == null)
                 {
                     throw new Exception("userId not found");
                 }
@@ -162,7 +162,7 @@ namespace WebXeDapAPI.Controller
                     message = "List"
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {
@@ -177,7 +177,7 @@ namespace WebXeDapAPI.Controller
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult DeleteCart([FromQuery]int productId)
+        public IActionResult DeleteCart([FromQuery] int productId)
         {
             try
             {
@@ -209,15 +209,15 @@ namespace WebXeDapAPI.Controller
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult DeleteCartId([FromQuery]int userid, List<int> productIds)
+        public IActionResult DeleteCartId([FromQuery] int userid, List<int> productIds)
         {
             try
             {
-                if(userid == null)
+                if (userid == null)
                 {
                     throw new Exception("userid not found");
                 }
-                var deleteCartId = _cartService.DeleteCart(userid,productIds);
+                var deleteCartId = _cartService.DeleteCart(userid, productIds);
                 return Ok(new XBaseResult
                 {
                     data = deleteCartId,
@@ -226,7 +226,140 @@ namespace WebXeDapAPI.Controller
                     message = "DeleteCart Successfully"
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("GetCartGuId")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetCartGuId([FromQuery] string GuId)
+        {
+            try
+            {
+                //var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                //if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
+                //{
+                //    var tokenStatus = _token.CheckTokenStatus(userID);
+                //    if (tokenStatus == StatusToken.Expired)
+                //    {
+                //        return Unauthorized("The token is no longer valid. Please log in again.");
+                //    }
+                //}
+                if (GuId == null)
+                {
+                    throw new Exception("userId not found");
+                }
+                var cart = _cartService.GetCartGuId(GuId);
+                return Ok(new XBaseResult
+                {
+                    data = cart,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = cart.Count,
+                    message = "List"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("IncreaseQuantityShoppingCartGuiId")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult IncreaseQuantityShoppingCartGuiId([FromQuery] string guiId, int createProductId)
+        {
+            try
+            {
+                if (guiId == null && createProductId == null)
+                {
+                    throw new Exception("UserId && createProductId not found");
+                }
+                var increase = _cartService.IncreaseQuantityShoppingCartGuiId(guiId, createProductId);
+                return Ok(new XBaseResult
+                {
+                    data = increase,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpPut("ReduceShoppingCartGuiId")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult ReduceShoppingCartGuiId([FromQuery] string guiId, int createProductId)
+        {
+            try
+            {
+                if (guiId == null && createProductId == null)
+                {
+                    throw new Exception("UserId && createProductId not found");
+                }
+                var query = _cartService.ReduceShoppingCartGuiId(guiId, createProductId);
+                return Ok(new XBaseResult
+                {
+                    data = query,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "ReduceShoppingCart Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("CreateCartslide")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateCartslide([FromBody] List<CartDtoslide> cartDtoListslide)
+        {
+            try
+            {
+                foreach (var cartDto in cartDtoListslide)
+                {
+                    var create = _cartService.CreateBicycleslide(cartDto);
+                }
+
+                return Ok(new XBaseResult
+                {
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = cartDtoListslide.Count,
+                    message = "Create Successfully"
+                });
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {

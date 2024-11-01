@@ -35,7 +35,7 @@ namespace WebXeDapAPI.Controller
                     message = "Create Commnent Successfully"
                 });
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {

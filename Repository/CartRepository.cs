@@ -48,7 +48,7 @@ namespace WebXeDapAPI.Repository
                 TotalPrice = x.TotalPrice,
                 Quantity = x.Quantity,
                 Image = x.Image
-             })
+            })
              .ToList();
         }
 
