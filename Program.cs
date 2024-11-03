@@ -52,6 +52,7 @@ builder.Services.AddScoped<ICartIService, CartService>();
 builder.Services.AddScoped<IOrderDetailsInterface, OrderDetailsRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
+builder.Services.AddScoped<IAccountingIService, AccountingService>();
 
 builder.Services.AddScoped<IDeliveryInterface, DeliveryRepository>();
 builder.Services.AddScoped<IDeliveryIService, DeliveryService>();

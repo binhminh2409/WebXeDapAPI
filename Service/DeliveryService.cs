@@ -49,9 +49,11 @@ public class DeliveryService : IDeliveryIService
         // Initialize shipment: 
         DeliveryDto dto = await GetFee(paymentDto, cityFrom, cityTo, districtFrom, districtTo);
         Payment payment = await _paymentInterface.GetByIdAsync(paymentDto.Id);
+        decimal codFee = paymentDto.Method == "COD" ? paymentDto.TotalPrice : 0;
 
         // Construct the request payload
         var requestUrl = $"{_requestUrl}/shipments";
+
         var shipmentData = new
         {
             shipment = new
@@ -77,7 +79,7 @@ public class DeliveryService : IDeliveryIService
                 },
                 parcel = new
                 {
-                    cod = paymentDto.TotalPrice.ToString(),
+                    cod = codFee.ToString(),
                     weight = "220",
                     width = "15",
                     height = "15",
@@ -101,7 +103,7 @@ public class DeliveryService : IDeliveryIService
         var response = await _httpClient.SendAsync(requestMessage);
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception("Failed to create shipment. Please check the input data and try again.");
+            throw new Exception($"Failed to create shipment. Please check the input data: {jsonContent}");
         }
 
         // Parse the response
