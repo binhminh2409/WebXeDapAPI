@@ -24,7 +24,7 @@ namespace WebXeDapAPI.Controller
             _accountingService = accountingService;
         }
 
-        [HttpPost("All")]
+        [HttpGet("All")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<ActionResult<DeliveryDto>> GetAll()
