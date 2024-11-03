@@ -13,5 +13,7 @@ namespace WebXeDapAPI.Service.Interfaces
         public List<Order_Details> GetDetailsByUser(int userId);
 
         public OrderWithDetailDto GetByIdWithDetail(int orderId); 
+
+        public Task<List<ProductGetAllInfPriceDto>> ListOfBestSellingProducts();
     }
 }

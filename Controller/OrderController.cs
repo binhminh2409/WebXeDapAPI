@@ -27,6 +27,34 @@ namespace WebXeDapAPI.Controller
             _token = token;
         }
 
+        [HttpGet("ListOfBestSellingProducts")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult ListOfBestSellingProducts()
+        {
+            try
+            {
+                var order = _orderService.ListOfBestSellingProducts();
+                return Ok(new XBaseResult
+                {
+                    data = order,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = order.Id,
+                    message = "Create Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
         [HttpPost("CreateOrder")]
         //[Authorize]
         [ProducesResponseType(200)]
