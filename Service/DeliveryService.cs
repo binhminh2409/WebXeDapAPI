@@ -65,8 +65,8 @@ public class DeliveryService : IDeliveryIService
                     phone = "012 345 6789",
                     street = "8 Hai Bà Trưng",
                     ward = "113",
-                    district = cityFrom,
-                    city = cityTo
+                    district = districtFrom,
+                    city = cityFrom
                 },
                 address_to = new
                 {

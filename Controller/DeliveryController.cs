@@ -110,7 +110,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        [HttpGet("Delivery/{deliveryId}")]
+        [HttpGet("{deliveryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<ActionResult<DeliveryDto>> GetById(int deliveryId)
@@ -152,7 +152,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        [HttpGet("Delivery/Order/{orderId}")]
+        [HttpGet("Order/{orderId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<ActionResult<DeliveryDto>> GetByOrdertId(int orderId)
