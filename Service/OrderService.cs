@@ -222,5 +222,18 @@ namespace WebXeDapAPI.Service
 
             return orderWithDetailDto;
         }
+
+        public string CancelOrder(int orderId)
+        {
+            try 
+            {
+                Order order = _orderInterface.GetById(orderId);
+                order.Status = StatusOrder.Cancelled;
+                _orderInterface.Update(order);
+                return "Order cancelled";
+            } catch (Exception ex) {
+                throw new Exception("There is an error when creating an Order", ex);
+            }
+        }
     }
 }
