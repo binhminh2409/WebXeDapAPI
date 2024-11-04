@@ -224,5 +224,77 @@ namespace WebXeDapAPI.Controller
             }
         }
 
+        [HttpGet("Reports/{orderId}")]
+        [Authorize(Roles = "ManagerMent")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetByIdWithDetailAdmin(int orderId)
+        {
+            try
+            {
+                var orderWithDetailDto = _orderService.GetByIdWithDetail(orderId);
+                return Ok(new XBaseResult
+                {
+                    data = orderWithDetailDto,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all my order details successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("Cancel/{orderId}")]
+        [Authorize(Roles = "User")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult CancelOrder(int orderId)
+        {
+            Console.WriteLine("Cancelling order");
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+
+                Console.WriteLine(userIdClaim);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    var tokenStatus = _token.CheckTokenStatus(userId);
+                    if (tokenStatus == StatusToken.Expired)
+                    {
+                        // Token không còn hợp lệ, từ chối yêu cầu
+                        return Unauthorized("The token is no longer valid. Please log in again.");
+                    }
+
+                    var message = _orderService.CancelOrder(orderId);
+
+                    return Ok(new XBaseResult
+                    {
+                        data = message,
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        message = "Get all my orders successfully",
+                    });
+                }
+
+                return BadRequest("Invalid user ID.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }
