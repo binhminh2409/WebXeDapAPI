@@ -7,5 +7,7 @@ namespace WebXeDapAPI.Repository.Interface
     {
         List<Order_Details> GetByUser(int userId);
         Order_Details GetByOrderId(string orderNo);
+
+        List<Order_Details> GetAllByOrderId(string orderNo);
     }
 }

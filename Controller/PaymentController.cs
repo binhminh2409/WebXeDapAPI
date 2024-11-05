@@ -7,6 +7,8 @@ using System.Security.Claims;
 using WebXeDapAPI.Helper;
 using WebXeDapAPI.Service.Interfaces;
 using WebXeDapAPI.Models;
+using WebXeDapAPI.Repository.Interface;
+using WebXeDapAPI.Service;
 
 
 namespace WebXeDapAPI.Controller
@@ -15,20 +17,29 @@ namespace WebXeDapAPI.Controller
     [ApiController]
     public class PaymentController : ControllerBase
     {
-        private readonly IPaymentIService _paymentIService;
+        private readonly IPaymentIService _paymentService;
         private readonly IUserIService _userIService;
         private readonly Token _token;
         private readonly IVietqrService _vietqrService;
 
+        private readonly IOrderIService _orderService;
+
+        private readonly IStockIService _stockService;
+
+
         public PaymentController(IPaymentIService paymentIService,
             Token token,
             IUserIService userIService,
-            IVietqrService vietqrService)
+            IVietqrService vietqrService,
+            IOrderIService orderIService,
+            IStockIService stockService)
         {
-            _paymentIService = paymentIService;
+            _paymentService = paymentIService;
             _token = token;
             _userIService = userIService;
             _vietqrService = vietqrService;
+            _orderService = orderIService;
+            _stockService = stockService;
         }
 
         [HttpGet("All")]
@@ -49,7 +60,7 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var payments = await _paymentIService.FindAll();
+                    var payments = await _paymentService.FindAll();
 
                     return Ok(new XBaseResult
                     {
@@ -92,7 +103,7 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var payments = await _paymentIService.FindByUser(userId);
+                    var payments = await _paymentService.FindByUser(userId);
 
                     return Ok(new XBaseResult
                     {
@@ -145,7 +156,7 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var payment = await _paymentIService.CreateAsync(paymentDto);
+                    var payment = await _paymentService.CreateAsync(paymentDto);
 
                     return Ok(new XBaseResult
                     {
@@ -188,7 +199,9 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var confirmedPayment = await _paymentIService.ConfirmAsync(paymentId);
+                    var confirmedPayment = await _paymentService.ConfirmAsync(paymentId);
+                    OrderWithDetailDto orderWithDetailDto = _orderService.GetByIdWithDetail(confirmedPayment.OrderId);
+                    await _stockService.DecreaseQuantityByOrderWithDetail(orderWithDetailDto);
 
                     return Ok(new XBaseResult
                     {
@@ -213,7 +226,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        
+
         [HttpPut("UpdateStatus")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -232,7 +245,7 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var confirmedPayment = await _paymentIService.UpdateStatusAsync(paymentDto);
+                    var confirmedPayment = await _paymentService.UpdateStatusAsync(paymentDto);
 
                     return Ok(new XBaseResult
                     {
