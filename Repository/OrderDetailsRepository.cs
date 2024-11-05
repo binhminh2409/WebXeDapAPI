@@ -23,28 +23,37 @@ namespace WebXeDapAPI.Repository
             return order_Details;
         }
 
+        public List<Order_Details> GetAllByOrderId(string orderNo)
+        {
+            List<Order_Details> order_Details = _dbContext.Order_Details
+                                                    .Where(od => od.OrderID == orderNo)
+                                                    .ToList();
+            return order_Details;
+        }
+
+
         public List<Order_Details> GetByUser(int userId)
         {
             // Fetch orders for the user in a single query
             var orders = _dbContext.Orders
                 .Where(o => o.UserID == userId)
                 .ToList();
-        
+
             // Create a list to hold order details
             List<Order_Details> orderDetails = new();
-        
+
             // If there are orders, fetch their details in a single query
             if (orders.Any())
             {
                 // Collect all order IDs
                 var orderIds = orders.Select(o => o.No_).ToList();
-        
+
                 // Fetch all order details that match the order IDs
                 orderDetails = _dbContext.Order_Details
                     .Where(od => orderIds.Contains(od.OrderID))
                     .ToList();
             }
-        
+
             return orderDetails;
         }
 

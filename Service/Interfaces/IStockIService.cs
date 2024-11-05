@@ -1,3 +1,4 @@
+using WebXeDapAPI.Dto;
 using WebXeDapAPI.Models;
 
 namespace WebXeDapAPI.Repository.Interface
@@ -15,5 +16,9 @@ namespace WebXeDapAPI.Repository.Interface
         Task<StockDto> DecreaseQuantity(int stockId, int decreasedBy);
 
         Task<StockDto> IncreaseQuantity(int stockId, int increasedBy);
+
+        Task<List<StockDto>> DecreaseQuantityByOrderWithDetail(OrderWithDetailDto orderWithDetailDto);
+
+        Task<List<InputStockDto>> Restock(List<InputStockDto> inputStockDtos);
     }
 }

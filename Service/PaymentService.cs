@@ -35,10 +35,17 @@ namespace WebXeDapAPI.Service
             // Use a single DbContext retrieval per request
             var user = _userInterface.GetUser(dto.UserId);
             var order = _orderInterface.GetById(dto.OrderId);
-            var orderDetails = _orderDetailsInterface.GetByOrderId(order.No_);
+            List<Order_Details> order_Details = _orderDetailsInterface.GetAllByOrderId(order.No_);
+            decimal totalPrice = 0;
+
+            // Get total price
+            foreach (var order_Detail in order_Details)
+            {
+                totalPrice += order_Detail.TotalPrice;
+            }
 
             // Check amount
-            if (dto.TotalPrice != orderDetails.TotalPrice)
+            if (dto.TotalPrice != totalPrice)
                 throw new ArgumentException("The payment amount does not match the order total.");
 
             if (await _paymentInterface.GetByOrderId(dto.OrderId) != null)

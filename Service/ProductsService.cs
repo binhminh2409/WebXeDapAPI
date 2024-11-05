@@ -65,6 +65,17 @@ namespace WebXeDapAPI.Service
                 };
 
                 await _dbContext.Products.AddAsync(products);
+
+                // Create stock
+                Stock stock = new Stock
+                {
+                    Product = products,
+                    Quantity = 0,
+                };
+
+                await _dbContext.Stocks.AddAsync(stock);
+
+
                 await _dbContext.SaveChangesAsync();
                 return products;
             }
@@ -245,7 +256,7 @@ namespace WebXeDapAPI.Service
                     product.Price = updateProductDto.Price;
                 }
 
-                if (updateProductDto.Size!=null)
+                if (updateProductDto.Size != null)
                 {
 
                     product.Size = updateProductDto.Size;

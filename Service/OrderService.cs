@@ -10,6 +10,7 @@ using WebXeDapAPI.Service.Interfaces;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using WebXeDapAPI.Helper;
 
 namespace WebXeDapAPI.Service
 {
@@ -17,21 +18,24 @@ namespace WebXeDapAPI.Service
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly ICartInterface _cartInterface;
+
+        private readonly IStockInterface _stockInterface;
         private readonly IOrderDetailsInterface _orderDetailsInterface;
 
         private readonly IOrderInterface _orderInterface;
-        public OrderService(ApplicationDbContext dbContext,ICartInterface cartInterface, IOrderDetailsInterface orderDetailsInterface, IOrderInterface orderInterface)
+        public OrderService(ApplicationDbContext dbContext, ICartInterface cartInterface, IOrderDetailsInterface orderDetailsInterface, IOrderInterface orderInterface, IStockInterface stockInterface)
         {
             _cartInterface = cartInterface;
             _dbContext = dbContext;
             _orderDetailsInterface = orderDetailsInterface;
             _orderInterface = orderInterface;
+            _stockInterface = stockInterface;
         }
 
         public async Task<List<ProductGetAllInfPriceDto>> ListOfBestSellingProducts()
         {
             var oneMonthAgo = DateTime.Now.AddMonths(-1);
-        
+
             var bestSellingProducts = await _dbContext.Order_Details
                 .Where(od => od.CreatedDate >= oneMonthAgo)
                 .GroupBy(od => od.ProductID)
@@ -55,7 +59,7 @@ namespace WebXeDapAPI.Service
                         BrandNamer = product.brandName,
                     })
                 .ToListAsync();
-        
+
             return bestSellingProducts;
         }
 
@@ -88,9 +92,19 @@ namespace WebXeDapAPI.Service
                 if (orderDto.Cart != null && orderDto.Cart.Any())
                 {
                     var orderDetails = new List<Order_Details>();
+
                     foreach (var productId in orderDto.Cart)
                     {
+
                         var cart = _cartInterface.GetProducId(productId);
+                        // Check stock
+                        Stock stock = _stockInterface.GetByProductId(productId);
+                        if (cart.Quantity > stock.Quantity)
+                        {
+                            throw new ArgumentException($"Product with ID {productId} does not have enough stock");
+                        }
+                        _stockInterface.DecreaseQuantity(stock.Id, cart.Quantity);
+
                         Console.WriteLine("-------------------------" + cart.Id);
                         if (cart != null)
                         {
@@ -142,11 +156,12 @@ namespace WebXeDapAPI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("There is an error when creating an Order", ex);
+                throw new Exception($"There is an error when creating an Order {ex.Message}", ex);
             }
         }
 
-        public Order_Details GetByOrderNo(string orderNo) {
+        public Order_Details GetByOrderNo(string orderNo)
+        {
             Order_Details? order_Details = _orderDetailsInterface.GetByOrderId(orderNo);
             return order_Details;
         }
@@ -170,7 +185,8 @@ namespace WebXeDapAPI.Service
             List<OrderDto>? dtos = new();
             foreach (var order in orders)
             {
-                OrderDto dto = new OrderDto{
+                OrderDto dto = new OrderDto
+                {
                     Id = order.Id,
                     ShipAddress = order.ShipAddress,
                     ShipEmail = order.ShipEmail,
@@ -194,8 +210,30 @@ namespace WebXeDapAPI.Service
         public OrderWithDetailDto GetByIdWithDetail(int orderId)
         {
             Order order = _orderInterface.GetById(orderId);
-            Order_Details order_Details = _orderDetailsInterface.GetByOrderId(order.No_);
-            OrderWithDetailDto orderWithDetailDto = new OrderWithDetailDto{
+            List<Order_Details> order_Details = _orderDetailsInterface.GetAllByOrderId(order.No_);
+            List<OrderDetailDto> orderDetailDtos = new();
+
+            // Populate orderdetails
+            foreach (var order_Detail in order_Details)
+            {
+                OrderDetailDto added = new OrderDetailDto
+                {
+                    Id = order_Detail.Id,
+                    OrderID = order_Detail.OrderID,
+                    ProductID = order_Detail.ProductID,
+                    ProductName = order_Detail.ProductName,
+                    PriceProduc = order_Detail.PriceProduc,
+                    Quantity = order_Detail.Quantity,
+                    TotalPrice = order_Detail.TotalPrice,
+                    Image = order_Detail.Image,
+                    Color = order_Detail.Color,
+                    CreatedDate = order_Detail.CreatedDate
+                };
+                orderDetailDtos.Add(added);
+            }
+
+            OrderWithDetailDto orderWithDetailDto = new OrderWithDetailDto
+            {
                 Id = order.Id,
                 UserID = order.UserID,
                 ShipName = order.ShipName,
@@ -204,20 +242,8 @@ namespace WebXeDapAPI.Service
                 ShipPhone = order.ShipPhone,
                 No_ = order.No_,
                 Status = order.Status.ToString(), // Convert enum to string if needed
-        
-                OrderDetails = new OrderDetailDto
-                {
-                    Id = order_Details.Id,
-                    OrderID = order_Details.OrderID,
-                    ProductID = order_Details.ProductID,
-                    ProductName = order_Details.ProductName,
-                    PriceProduc = order_Details.PriceProduc,
-                    Quantity = order_Details.Quantity,
-                    TotalPrice = order_Details.TotalPrice,
-                    Image = order_Details.Image,
-                    Color = order_Details.Color,
-                    CreatedDate = order_Details.CreatedDate
-                }
+
+                OrderDetails = orderDetailDtos
             };
 
             return orderWithDetailDto;
@@ -225,13 +251,15 @@ namespace WebXeDapAPI.Service
 
         public string CancelOrder(int orderId)
         {
-            try 
+            try
             {
                 Order order = _orderInterface.GetById(orderId);
                 order.Status = StatusOrder.Cancelled;
                 _orderInterface.Update(order);
                 return "Order cancelled";
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 throw new Exception("There is an error when creating an Order", ex);
             }
         }

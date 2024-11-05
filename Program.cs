@@ -17,6 +17,7 @@ using WebXeDapAPI.Service;
 using WebXeDapAPI.Repository.Interface;
 using WebXeDapAPI.Helper;
 using WebXeDapAPI.Repository;
+using WebXeDapAPI.Service.Implementations;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +54,10 @@ builder.Services.AddScoped<IOrderDetailsInterface, OrderDetailsRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
 builder.Services.AddScoped<IAccountingIService, AccountingService>();
+builder.Services.AddScoped<IStockInterface, StockRepository>();
+builder.Services.AddScoped<IStockIService, StockService>();
+builder.Services.AddScoped<IInputStockInterface, InputStockRepository>();
+
 
 builder.Services.AddScoped<IDeliveryInterface, DeliveryRepository>();
 builder.Services.AddScoped<IDeliveryIService, DeliveryService>();
