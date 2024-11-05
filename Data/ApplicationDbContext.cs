@@ -22,6 +22,9 @@ namespace WebXeDapAPI.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Like> Likes { get; set; }
         public DbSet<Delivery> Deliveries { get; set; }
+        public DbSet<InputStock> InputStocks { get; set; }
+        public DbSet<Stock> Stocks { get; set; }
+        public DbSet<Ads> Ads { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -139,7 +142,20 @@ namespace WebXeDapAPI.Data
             modelBuilder.Entity<Comment>()
                 .Property(x => x.Description)
                 .HasColumnType("text");
+                
+            // Configure Product relationship in InputStock
+            modelBuilder.Entity<InputStock>()
+                .HasOne(i => i.Product)
+                .WithMany() // No navigation property defined in Products, so use WithMany() without parameters
+                .HasForeignKey("ProductId") // Assuming a foreign key "ProductId" is needed
+                .OnDelete(DeleteBehavior.Restrict); // Use Restrict to prevent cascading delete
 
+            // Configure Product relationship in Stock
+            modelBuilder.Entity<Stock>()
+                .HasOne(s => s.Product)
+                .WithMany()
+                .HasForeignKey("ProductId")
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
