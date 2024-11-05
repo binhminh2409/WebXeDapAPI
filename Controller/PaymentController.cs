@@ -38,7 +38,7 @@ namespace WebXeDapAPI.Controller
         {
             try
             {
-                var userIdClaim = HttpContext.User.FindFirst("Id");
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
 
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
                 {

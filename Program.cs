@@ -52,6 +52,7 @@ builder.Services.AddScoped<ICartIService, CartService>();
 builder.Services.AddScoped<IOrderDetailsInterface, OrderDetailsRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
+builder.Services.AddScoped<IAccountingIService, AccountingService>();
 
 builder.Services.AddScoped<IDeliveryInterface, DeliveryRepository>();
 builder.Services.AddScoped<IDeliveryIService, DeliveryService>();
@@ -128,8 +129,8 @@ builder.Services.AddCors(options =>
     {
         builder.AllowAnyOrigin() // Cho phép tất cả miền
             .AllowAnyHeader()
-            .WithMethods("POST", "PUT", "GET", "DELETE", "OPTIONS")
-            .AllowCredentials();
+            .WithMethods("POST", "PUT", "GET", "DELETE", "OPTIONS");
+            // .AllowCredentials();
     });
 });
 
@@ -138,7 +139,7 @@ var app = builder.Build();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"D:\Thai\Porject_Ky_4\WebXeDapApi", "Image")),
+        Path.Combine(@"D:\Coding\WebXeDap\WebXeDapApi\Image")),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 

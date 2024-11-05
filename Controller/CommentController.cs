@@ -70,5 +70,31 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
+        
+        [HttpGet("api/Comment/All")]
+        public async Task<IActionResult> GetAll(int productId)
+        {
+            try
+            {
+                var result = await _commentService.GetAll(productId);
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Create Commnent Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

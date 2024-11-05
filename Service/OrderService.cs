@@ -9,6 +9,7 @@ using WebXeDapAPI.Repository.Interface;
 using WebXeDapAPI.Service.Interfaces;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebXeDapAPI.Service
 {
@@ -26,6 +27,38 @@ namespace WebXeDapAPI.Service
             _orderDetailsInterface = orderDetailsInterface;
             _orderInterface = orderInterface;
         }
+
+        public async Task<List<ProductGetAllInfPriceDto>> ListOfBestSellingProducts()
+        {
+            var oneMonthAgo = DateTime.Now.AddMonths(-1);
+        
+            var bestSellingProducts = await _dbContext.Order_Details
+                .Where(od => od.CreatedDate >= oneMonthAgo)
+                .GroupBy(od => od.ProductID)
+                .Select(group => new
+                {
+                    ProductId = group.Key,
+                    TotalSold = group.Count()
+                })
+                .OrderByDescending(x => x.TotalSold)
+                .Take(8)
+                .Join(_dbContext.Products,
+                    bestSeller => bestSeller.ProductId,
+                    product => product.Id,
+                    (bestSeller, product) => new ProductGetAllInfPriceDto
+                    {
+                        Id = product.Id,
+                        ProductName = product.ProductName,
+                        Price = product.Price,
+                        PriceHasDecreased = product.PriceHasDecreased,
+                        Image = product.Image,
+                        BrandNamer = product.brandName,
+                    })
+                .ToListAsync();
+        
+            return bestSellingProducts;
+        }
+
         public (Order, List<Order_Details>) Create([FromQuery] OrderDto orderDto)
         {
             try
@@ -188,6 +221,19 @@ namespace WebXeDapAPI.Service
             };
 
             return orderWithDetailDto;
+        }
+
+        public string CancelOrder(int orderId)
+        {
+            try 
+            {
+                Order order = _orderInterface.GetById(orderId);
+                order.Status = StatusOrder.Cancelled;
+                _orderInterface.Update(order);
+                return "Order cancelled";
+            } catch (Exception ex) {
+                throw new Exception("There is an error when creating an Order", ex);
+            }
         }
     }
 }

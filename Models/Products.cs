@@ -1,5 +1,6 @@
 ﻿using WebXeDapAPI.Models.Enum;
 using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 
 namespace WebXeDapAPI.Models
 {
@@ -20,5 +21,6 @@ namespace WebXeDapAPI.Models
         public string TypeName { get; set; }
         public string Colors { get; set; }
         public StatusProduct Status { get; set; }
+        public ShirtSize? Size { get; set; }
     }
 }

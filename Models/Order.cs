@@ -14,7 +14,6 @@ namespace WebXeDapAPI.Models
         public string ShipEmail { get; set; }
         public string ShipPhone { get; set; }
         public StatusOrder Status { get; set; }
-
         public override string ToString()
         {
             return $"OrderDto [UserID={UserID}, ShipName={No_}]]";

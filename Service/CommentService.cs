@@ -81,9 +81,33 @@ namespace WebXeDapAPI.Service
             }
         }
 
+        public async Task<List<Comment>> GetAll( int productId)
+        {
+            try
+            {
+                // Querying comments by both userId and productId
+                var comments = await _DBContext.Comments
+                    .Where(x => x.ProductId == productId)
+                    .ToListAsync();
+
+                // Check if comments list is empty
+                if (comments == null || !comments.Any())
+                {
+                    throw new Exception("No comments found for this user and product.");
+                }
+
+                return comments;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error: {ex.Message}");
+            }
+        }
+
         public Task<Comment> Update(Comment comment)
         {
             throw new NotImplementedException();
         }
     }
+    
 }
