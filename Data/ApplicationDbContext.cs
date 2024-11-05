@@ -24,6 +24,7 @@ namespace WebXeDapAPI.Data
         public DbSet<Delivery> Deliveries { get; set; }
         public DbSet<InputStock> InputStocks { get; set; }
         public DbSet<Stock> Stocks { get; set; }
+        public DbSet<Ads> Ads { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
