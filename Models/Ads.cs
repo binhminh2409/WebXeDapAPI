@@ -14,5 +14,6 @@ namespace WebXeDapAPI.Models
 
         public string Image { get; set; }
 
+        public int Sort { get; set; }
     }
 }

@@ -139,7 +139,7 @@ var app = builder.Build();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(@"D:\Coding\WebXeDap\WebXeDapApi\Image")),
+        Path.Combine(builder.Configuration["BaseAddress"])),
     RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
 });
 

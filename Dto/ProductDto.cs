@@ -14,5 +14,7 @@ namespace Data.Dto
         public int BrandId { get; set; }
         public int TypeId { get; set; }
         public string Colors { get; set; }
+
+        public string? Size { get; set; }
     }
 }

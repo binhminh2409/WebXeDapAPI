@@ -21,6 +21,6 @@ namespace WebXeDapAPI.Models
         public string TypeName { get; set; }
         public string Colors { get; set; }
         public StatusProduct Status { get; set; }
-        public ShirtSize? Size { get; set; }
+        public string? Size { get; set; }
     }
 }
