@@ -16,6 +16,8 @@ namespace WebXeDapAPI.Dto
 
         public string? No_  { get; set; }
 
+        public string? Guid { get; set; }
+
         public override string ToString()
         {
             return $"OrderDto [UserID={UserID}, ShipName={ShipName}, ShipAddress={ShipAddress}, ShipEmail={ShipEmail}, ShipPhone={ShipPhone}, Cart=[{string.Join(",", Cart)}]]";

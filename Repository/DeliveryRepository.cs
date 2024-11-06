@@ -52,5 +52,16 @@ namespace WebXeDapAPI.Repository
                 .Include(d => d.Payment)
                 .ToListAsync();
         }
+
+        public async Task<Delivery> UpdateAsync(Delivery delivery)
+        {
+            _dbContext.Deliveries.Update(delivery);
+            await _dbContext.SaveChangesAsync();
+
+            // Load the Payment related entity before returning
+            return await _dbContext.Deliveries
+                .Include(d => d.Payment)
+                .FirstOrDefaultAsync(d => d.Id == delivery.Id);
+        }
     }
 }

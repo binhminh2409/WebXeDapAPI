@@ -10,6 +10,8 @@ namespace WebXeDapAPI.Service.Interfaces
         public Task<List<PaymentDto>> FindAll();
 
         public Task<List<PaymentDto>> FindByUser(int userId);
+
+        public Task<List<PaymentDto>> FindByGuid(string guid);
  
         public Task<PaymentDto> ConfirmAsync(int paymentId);
 
