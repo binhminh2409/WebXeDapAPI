@@ -32,7 +32,6 @@ namespace WebXeDapAPI.Service
         {
             if (dto == null) throw new ArgumentException("Request invalid");
 
-            // Use a single DbContext retrieval per request
             var user = _userInterface.GetUser(dto.UserId);
             var order = _orderInterface.GetById(dto.OrderId);
             List<Order_Details> order_Details = _orderDetailsInterface.GetAllByOrderId(order.No_);
@@ -97,7 +96,7 @@ namespace WebXeDapAPI.Service
             order.Status = Models.Enum.StatusOrder.Paid;
             _orderInterface.Update(order);
 
-            payment.Status = Models.Enum.StatusPayment.Confirmed;
+            payment.Status = Models.Enum.StatusPayment.Successful;
             Payment updatedPayment = await _paymentInterface.UpdateAsync(payment);
             PaymentDto updatedPaymentDto = PaymentMapper.EntityToDto(updatedPayment);
             return updatedPaymentDto;
@@ -114,6 +113,24 @@ namespace WebXeDapAPI.Service
 
             PaymentDto updatedPaymentDto = PaymentMapper.EntityToDto(updatedPayment);
             return updatedPaymentDto;
+        }
+
+        public async Task<List<PaymentDto>> FindByGuid(string guid)
+        {
+            List<Order> orders = _orderInterface.GetByGuid(guid);
+            List<Payment> payments = new();
+            foreach (var order in orders)
+            {
+                Payment payment = await _paymentInterface.GetByOrderId(order.Id);
+                payments.Add(payment);
+            }
+            List<PaymentDto> dtos = new List<PaymentDto>();
+            foreach (var payment in payments)
+            {
+                dtos.Add(PaymentMapper.EntityToDto(payment));
+            }
+
+            return dtos;
         }
     }
 }

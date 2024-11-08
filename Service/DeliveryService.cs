@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -257,5 +258,63 @@ public class DeliveryService : IDeliveryIService
         }
     }
 
+    public async Task<DeliveryDto> CreateSelfAsync(PaymentDto paymentDto)
+    {
+        try
+        {
+            Payment payment = await _paymentInterface.GetByIdAsync(paymentDto.Id);
+            var delivery = new Delivery
+            {
+                UserId = paymentDto.UserId, // Set the UserId from the dto
+                No_ = generateNo(),
+                Status = StatusDelivery.NewOrder,
+                CreatedTime = DateTime.UtcNow,
+                UpdatedTime = DateTime.UtcNow,
+                Payment = payment
+            };
+            Delivery createdDelivery = await _deliveryInterface.CreateAsync(delivery);
+            return DeliveryMapper.EntityToDto(createdDelivery);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error creating payment from service: {e.Message}");
+        }
+    }
+
+        public async Task<DeliveryDto> UpdateAsync(DeliveryDto deliveryDto)
+    {
+        try
+        {
+            Payment payment = await _paymentInterface.GetByIdAsync(deliveryDto.Payment.Id);
+            Delivery delivery = DeliveryMapper.DtoToEntity(deliveryDto, payment);
+            Delivery updatedDelivery = await _deliveryInterface.UpdateAsync(delivery);
+            return DeliveryMapper.EntityToDto(updatedDelivery);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error creating payment from service: {e.Message}");
+        }
+    }
+
+    private string generateNo()
+    {
+        DateTime currentDate = DateTime.Now;
+
+        long timestamp = ((DateTimeOffset)currentDate).ToUnixTimeSeconds();
+
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(timestamp.ToString()));
+            StringBuilder hexString = new StringBuilder();
+            foreach (byte b in hashBytes)
+            {
+                hexString.AppendFormat("{0:x2}", b);
+            }
+            string encodedDate = hexString.ToString().Substring(0, 7);
+            string batchNumber = encodedDate.ToUpper();
+
+            return batchNumber;
+        }
+    }
 
 }

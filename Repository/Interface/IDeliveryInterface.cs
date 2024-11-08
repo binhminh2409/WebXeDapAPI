@@ -14,5 +14,7 @@ namespace WebXeDapAPI.Repository.Interface
         Task<List<Delivery>> GetAll();
 
         Task<Delivery> GetByPaymentId(int paymentId);
+
+        Task<Delivery> UpdateAsync(Delivery Delivery);
     }
 }

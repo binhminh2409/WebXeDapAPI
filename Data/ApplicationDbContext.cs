@@ -28,6 +28,24 @@ namespace WebXeDapAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>().HasData(
+                       new User
+                       {
+                           Id = -1,
+                           Name = "Not logged in",
+                           Email = "",
+                           Password = "",
+                           Address = "",
+                           City = "",
+                           Phone = "",
+                           Gender = "",
+                           Image = "",
+                           DateOfBirth = "",
+                           roles = Models.Enum.Roles.User,  // Assuming '1' corresponds to Roles.Customer
+                           Create = DateTime.UtcNow
+                       }
+                   );
+
             modelBuilder.Entity<Delivery>()
                 .Property(d => d.Status)
                 .HasConversion<string>();
@@ -142,7 +160,7 @@ namespace WebXeDapAPI.Data
             modelBuilder.Entity<Comment>()
                 .Property(x => x.Description)
                 .HasColumnType("text");
-                
+
             // Configure Product relationship in InputStock
             modelBuilder.Entity<InputStock>()
                 .HasOne(i => i.Product)

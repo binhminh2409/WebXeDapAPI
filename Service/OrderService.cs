@@ -67,6 +67,7 @@ namespace WebXeDapAPI.Service
         {
             try
             {
+                string cartGuid = null;
                 if (orderDto == null)
                 {
                     throw new ArgumentNullException(nameof(orderDto), "OrderDto cannot be null");
@@ -78,6 +79,17 @@ namespace WebXeDapAPI.Service
                     var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId.Value);
                 }
 
+
+
+                if (orderDto.Cart != null && orderDto.Cart.Any() && userIDToAssign == -1)
+                {
+                    foreach (var productId in orderDto.Cart)
+                    {
+                        var cart = _cartInterface.GetProducId(productId);
+                        cartGuid = cart.GuId ?? null;
+                    }
+                }
+
                 var order = new Order
                 {
                     No_ = AutomaticallyGenerateOrderNumbers(),
@@ -86,7 +98,8 @@ namespace WebXeDapAPI.Service
                     ShipAddress = orderDto.ShipAddress,
                     ShipEmail = orderDto.ShipEmail,
                     ShipPhone = orderDto.ShipPhone,
-                    Status = StatusOrder.Pending
+                    Status = StatusOrder.Pending,
+                    Guid = cartGuid
                 };
 
                 if (orderDto.Cart != null && orderDto.Cart.Any())
@@ -105,7 +118,6 @@ namespace WebXeDapAPI.Service
                         }
                         _stockInterface.DecreaseQuantity(stock.Id, cart.Quantity);
 
-                        Console.WriteLine("-------------------------" + cart.Id);
                         if (cart != null)
                         {
                             var orderDetail = new Order_Details
@@ -120,7 +132,6 @@ namespace WebXeDapAPI.Service
                                 Image = cart.Image,
                                 CreatedDate = DateTime.Now
                             };
-                            Console.WriteLine("-------------------------" + orderDetail.ToString());
                             orderDetails.Add(orderDetail);
                         }
                         else
@@ -130,8 +141,9 @@ namespace WebXeDapAPI.Service
                     }
 
                     _dbContext.Orders.Add(order);
-                    _dbContext.Order_Details.AddRange(orderDetails);
                     _dbContext.SaveChanges();
+
+                    _dbContext.Order_Details.AddRange(orderDetails);
                     foreach (var orderDetail in orderDetails)
                     {
                         var product = _dbContext.Products.FirstOrDefault(p => p.Id == orderDetail.ProductID);
@@ -261,6 +273,116 @@ namespace WebXeDapAPI.Service
             catch (Exception ex)
             {
                 throw new Exception("There is an error when creating an Order", ex);
+            }
+        }
+
+        public List<OrderWithDetailDto> GetByGuid(string Guid)
+        {
+            try
+            {
+                List<Order> orders = _orderInterface.GetByGuid(Guid);
+                List<OrderWithDetailDto> orderWithDetailDtos = new();
+
+                foreach (var order in orders)
+                {
+                    List<Order_Details> order_Details = _orderDetailsInterface.GetAllByOrderId(order.No_);
+                    List<OrderDetailDto> orderDetailDtos = new();
+                    // Populate orderdetails
+                    foreach (var order_Detail in order_Details)
+                    {
+                        OrderDetailDto added = new OrderDetailDto
+                        {
+                            Id = order_Detail.Id,
+                            OrderID = order_Detail.OrderID,
+                            ProductID = order_Detail.ProductID,
+                            ProductName = order_Detail.ProductName,
+                            PriceProduc = order_Detail.PriceProduc,
+                            Quantity = order_Detail.Quantity,
+                            TotalPrice = order_Detail.TotalPrice,
+                            Image = order_Detail.Image,
+                            Color = order_Detail.Color,
+                            CreatedDate = order_Detail.CreatedDate
+                        };
+                        orderDetailDtos.Add(added);
+                    }
+
+                    OrderWithDetailDto orderWithDetailDto = new OrderWithDetailDto
+                    {
+                        Id = order.Id,
+                        UserID = order.UserID,
+                        ShipName = order.ShipName,
+                        ShipAddress = order.ShipAddress,
+                        ShipEmail = order.ShipEmail,
+                        ShipPhone = order.ShipPhone,
+                        No_ = order.No_,
+                        Status = order.Status.ToString(), // Convert enum to string if needed
+
+                        OrderDetails = orderDetailDtos
+                    };
+
+                    orderWithDetailDtos.Add(orderWithDetailDto);
+                }
+
+                return orderWithDetailDtos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error getting orders: {e.Message}");
+            }
+        }
+
+        public List<OrderWithDetailDto> GetByUserWithDetail(int userId)
+        {
+            try
+            {
+                List<Order> orders = _orderInterface.GetByUser(userId);
+                List<OrderWithDetailDto> orderWithDetailDtos = new();
+
+                foreach (var order in orders)
+                {
+                    List<Order_Details> order_Details = _orderDetailsInterface.GetAllByOrderId(order.No_);
+                    List<OrderDetailDto> orderDetailDtos = new();
+                    // Populate orderdetails
+                    foreach (var order_Detail in order_Details)
+                    {
+                        OrderDetailDto added = new OrderDetailDto
+                        {
+                            Id = order_Detail.Id,
+                            OrderID = order_Detail.OrderID,
+                            ProductID = order_Detail.ProductID,
+                            ProductName = order_Detail.ProductName,
+                            PriceProduc = order_Detail.PriceProduc,
+                            Quantity = order_Detail.Quantity,
+                            TotalPrice = order_Detail.TotalPrice,
+                            Image = order_Detail.Image,
+                            Color = order_Detail.Color,
+                            CreatedDate = order_Detail.CreatedDate
+                        };
+                        orderDetailDtos.Add(added);
+                    }
+
+                    OrderWithDetailDto orderWithDetailDto = new OrderWithDetailDto
+                    {
+                        Id = order.Id,
+                        UserID = order.UserID,
+                        ShipName = order.ShipName,
+                        ShipAddress = order.ShipAddress,
+                        ShipEmail = order.ShipEmail,
+                        ShipPhone = order.ShipPhone,
+                        No_ = order.No_,
+                        Status = order.Status.ToString(), // Convert enum to string if needed
+
+                        OrderDetails = orderDetailDtos
+                    };
+
+                    orderWithDetailDtos.Add(orderWithDetailDto);
+                }
+
+                return orderWithDetailDtos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error getting orders: {e.Message}");
             }
         }
     }

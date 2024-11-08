@@ -9,6 +9,7 @@ using WebXeDapAPI.Service.Interfaces;
 using WebXeDapAPI.Models;
 using WebXeDapAPI.Repository.Interface;
 using WebXeDapAPI.Service;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebXeDapAPI.Controller
@@ -43,36 +44,22 @@ namespace WebXeDapAPI.Controller
         }
 
         [HttpGet("All")]
+        // [Authorize(Roles = "ManageMent")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetAllPayments()
         {
             try
             {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                var payments = await _paymentService.FindAll();
+                return Ok(new XBaseResult
                 {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var payments = await _paymentService.FindAll();
-
-                    return Ok(new XBaseResult
-                    {
-                        data = payments,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Get all payments successfully",
-                        totalCount = payments?.Count ?? 0
-                    });
-                }
-                return BadRequest("Invalid user ID.");
-
+                    data = payments,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all payments successfully",
+                    totalCount = payments?.Count ?? 0
+                });
             }
             catch (Exception ex)
             {
@@ -88,7 +75,7 @@ namespace WebXeDapAPI.Controller
         [HttpGet("MyPayments")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetMyPayments()
+        public async Task<IActionResult> GetMyPayments([FromQuery] string? myGuid)
         {
             try
             {
@@ -114,7 +101,19 @@ namespace WebXeDapAPI.Controller
                         totalCount = payments?.Count ?? 0
                     });
                 }
-                return BadRequest("Invalid user ID.");
+                else
+                {
+                    var payments = await _paymentService.FindByGuid(myGuid);
+
+                    return Ok(new XBaseResult
+                    {
+                        data = payments,
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        message = "Get all my payments successfully",
+                        totalCount = payments?.Count ?? 0
+                    });
+                }
 
             }
             catch (Exception ex)
@@ -167,7 +166,17 @@ namespace WebXeDapAPI.Controller
                         message = "Payment created successfully"
                     });
                 }
-                return BadRequest("Invalid user ID.");
+
+                var nonLoggedInPayment = await _paymentService.CreateAsync(paymentDto);
+
+                return Ok(new XBaseResult
+                {
+                    data = nonLoggedInPayment,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all my payments successfully",
+                });
+
 
             }
             catch (Exception ex)
@@ -212,7 +221,15 @@ namespace WebXeDapAPI.Controller
                         message = "Payment confirmed"
                     });
                 }
-                return BadRequest("Invalid user ID.");
+                var nonLoggedInPayment = await _paymentService.ConfirmAsync(paymentId);
+
+                return Ok(new XBaseResult
+                {
+                    data = nonLoggedInPayment,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all my payments successfully",
+                });
 
             }
             catch (Exception ex)

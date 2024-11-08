@@ -76,10 +76,11 @@ namespace WebXeDapAPI.Controller
                 {
                     throw new ArgumentNullException(nameof(orderDto), "Invalid slide data");
                 }
-                var order = _orderService.Create(orderDto);
+                var (order, orderDetails) = _orderService.Create(orderDto);
+                
                 return Ok(new XBaseResult
                 {
-                    data = orderDto,
+                    data = order,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
                     message = "Create Successfully"
@@ -96,11 +97,13 @@ namespace WebXeDapAPI.Controller
             }
         }
 
+
+
+
         [HttpGet("MyOrders")]
-        [Authorize(Roles = "User")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetByUser()
+        public IActionResult GetByUser([FromQuery] string? guid)
         {
             try
             {
@@ -114,7 +117,7 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var orderDtos = _orderService.GetByUser(userId);
+                    var orderDtos = _orderService.GetByUserWithDetail(userId);
 
                     return Ok(new XBaseResult
                     {
@@ -125,51 +128,20 @@ namespace WebXeDapAPI.Controller
                         totalCount = orderDtos?.Count ?? 0
                     });
                 }
-
-                return BadRequest("Invalid user ID.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new XBaseResult
+                if (guid == null)
                 {
-                    success = false,
-                    httpStatusCode = (int)HttpStatusCode.BadRequest,
-                    message = ex.Message
-                });
-            }
-        }
-
-        [HttpGet("MyOrdersDetails")]
-        [Authorize(Roles = "User")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public IActionResult GetDetailsByUser()
-        {
-            try
-            {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
-                {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var orderDetails = _orderService.GetDetailsByUser(userId);
-
-                    return Ok(new XBaseResult
-                    {
-                        data = orderDetails,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Get all my order details successfully",
-                        totalCount = orderDetails?.Count ?? 0
-                    });
+                    return BadRequest("Guid is required when not logged in");
                 }
+                var notLoggedInOrderDtos = _orderService.GetByGuid(guid);
 
-                return BadRequest("Invalid user ID.");
+                return Ok(new XBaseResult
+                {
+                    data = notLoggedInOrderDtos,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all my orders successfully",
+                    totalCount = notLoggedInOrderDtos?.Count ?? 0
+                });
             }
             catch (Exception ex)
             {
@@ -181,37 +153,25 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
 
         [HttpGet("MyOrders/{orderId}")]
-        [Authorize(Roles = "User")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetByIdWithDetail(int orderId)
         {
             try
             {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                var orderWithDetailDto = _orderService.GetByIdWithDetail(orderId);
+
+                return Ok(new XBaseResult
                 {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token is no longer valid; deny request
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
+                    data = orderWithDetailDto,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all my order details successfully"
+                });
 
-                    var orderWithDetailDto = _orderService.GetByIdWithDetail(orderId);
-
-                    return Ok(new XBaseResult
-                    {
-                        data = orderWithDetailDto,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Get all my order details successfully"
-                    });
-                }
-
-                return BadRequest("Invalid user ID.");
             }
             catch (Exception ex)
             {
@@ -253,7 +213,6 @@ namespace WebXeDapAPI.Controller
         }
 
         [HttpPut("Cancel/{orderId}")]
-        [Authorize(Roles = "User")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CancelOrder(int orderId)
