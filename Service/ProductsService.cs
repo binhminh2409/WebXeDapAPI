@@ -296,12 +296,12 @@ namespace WebXeDapAPI.Service
             }
         }
 
-        public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(decimal minPrice, decimal maxPrice, string? brandsName)
+        public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(string productType,decimal minPrice, decimal maxPrice, string? brandsName)
         {
             // Giả sử _context là DbContext chứa các DbSet cho Product và Type
             var products = (from p in _dbContext.Products
                             join t in _dbContext.Types on p.TypeId equals t.Id
-                            where t.ProductType == "Xe đạp"
+                            where t.Name == productType
                             select new ProductGetAllInfPriceDto
                             {
                                 Id = p.Id,
