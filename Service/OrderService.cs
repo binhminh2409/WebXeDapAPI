@@ -118,7 +118,6 @@ namespace WebXeDapAPI.Service
                         }
                         _stockInterface.DecreaseQuantity(stock.Id, cart.Quantity);
 
-                        Console.WriteLine("-------------------------" + cart.Id);
                         if (cart != null)
                         {
                             var orderDetail = new Order_Details
@@ -133,7 +132,6 @@ namespace WebXeDapAPI.Service
                                 Image = cart.Image,
                                 CreatedDate = DateTime.Now
                             };
-                            Console.WriteLine("-------------------------" + orderDetail.ToString());
                             orderDetails.Add(orderDetail);
                         }
                         else
@@ -143,8 +141,9 @@ namespace WebXeDapAPI.Service
                     }
 
                     _dbContext.Orders.Add(order);
-                    _dbContext.Order_Details.AddRange(orderDetails);
                     _dbContext.SaveChanges();
+
+                    _dbContext.Order_Details.AddRange(orderDetails);
                     foreach (var orderDetail in orderDetails)
                     {
                         var product = _dbContext.Products.FirstOrDefault(p => p.Id == orderDetail.ProductID);

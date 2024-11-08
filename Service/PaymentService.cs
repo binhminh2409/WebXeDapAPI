@@ -96,7 +96,7 @@ namespace WebXeDapAPI.Service
             order.Status = Models.Enum.StatusOrder.Paid;
             _orderInterface.Update(order);
 
-            payment.Status = Models.Enum.StatusPayment.Confirmed;
+            payment.Status = Models.Enum.StatusPayment.Successful;
             Payment updatedPayment = await _paymentInterface.UpdateAsync(payment);
             PaymentDto updatedPaymentDto = PaymentMapper.EntityToDto(updatedPayment);
             return updatedPaymentDto;

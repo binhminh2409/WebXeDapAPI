@@ -76,10 +76,11 @@ namespace WebXeDapAPI.Controller
                 {
                     throw new ArgumentNullException(nameof(orderDto), "Invalid slide data");
                 }
-                var order = _orderService.Create(orderDto);
+                var (order, orderDetails) = _orderService.Create(orderDto);
+                
                 return Ok(new XBaseResult
                 {
-                    data = orderDto,
+                    data = order,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
                     message = "Create Successfully"

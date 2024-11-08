@@ -36,6 +36,7 @@ namespace WebXeDapAPI.Helper
             {
                 Id = stock.Id,
                 Product = new ProductDto {
+                    Id = stock.Product.Id,
                     ProductName = stock.Product.ProductName,
                     Price = stock.Product.Price,
                     BrandId = stock.Product.BrandId,
