@@ -8,6 +8,8 @@ namespace WebXeDapAPI.Repository.Interface
         List<Order> GetByUser(int userId);
         Order GetById(int orderId);
 
+        List<Order> GetByGuid(string Guid);
+
         Order Update(Order order);
     }
 }

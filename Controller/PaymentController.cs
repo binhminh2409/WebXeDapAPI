@@ -7,6 +7,9 @@ using System.Security.Claims;
 using WebXeDapAPI.Helper;
 using WebXeDapAPI.Service.Interfaces;
 using WebXeDapAPI.Models;
+using WebXeDapAPI.Repository.Interface;
+using WebXeDapAPI.Service;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebXeDapAPI.Controller
@@ -15,53 +18,48 @@ namespace WebXeDapAPI.Controller
     [ApiController]
     public class PaymentController : ControllerBase
     {
-        private readonly IPaymentIService _paymentIService;
+        private readonly IPaymentIService _paymentService;
         private readonly IUserIService _userIService;
         private readonly Token _token;
         private readonly IVietqrService _vietqrService;
 
+        private readonly IOrderIService _orderService;
+
+        private readonly IStockIService _stockService;
+
+
         public PaymentController(IPaymentIService paymentIService,
             Token token,
             IUserIService userIService,
-            IVietqrService vietqrService)
+            IVietqrService vietqrService,
+            IOrderIService orderIService,
+            IStockIService stockService)
         {
-            _paymentIService = paymentIService;
+            _paymentService = paymentIService;
             _token = token;
             _userIService = userIService;
             _vietqrService = vietqrService;
+            _orderService = orderIService;
+            _stockService = stockService;
         }
 
         [HttpGet("All")]
+        // [Authorize(Roles = "ManageMent")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetAllPayments()
         {
             try
             {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                var payments = await _paymentService.FindAll();
+                return Ok(new XBaseResult
                 {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var payments = await _paymentIService.FindAll();
-
-                    return Ok(new XBaseResult
-                    {
-                        data = payments,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Get all payments successfully",
-                        totalCount = payments?.Count ?? 0
-                    });
-                }
-                return BadRequest("Invalid user ID.");
-
+                    data = payments,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all payments successfully",
+                    totalCount = payments?.Count ?? 0
+                });
             }
             catch (Exception ex)
             {
@@ -77,7 +75,7 @@ namespace WebXeDapAPI.Controller
         [HttpGet("MyPayments")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetMyPayments()
+        public async Task<IActionResult> GetMyPayments([FromQuery] string? myGuid)
         {
             try
             {
@@ -92,7 +90,7 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var payments = await _paymentIService.FindByUser(userId);
+                    var payments = await _paymentService.FindByUser(userId);
 
                     return Ok(new XBaseResult
                     {
@@ -103,7 +101,19 @@ namespace WebXeDapAPI.Controller
                         totalCount = payments?.Count ?? 0
                     });
                 }
-                return BadRequest("Invalid user ID.");
+                else
+                {
+                    var payments = await _paymentService.FindByGuid(myGuid);
+
+                    return Ok(new XBaseResult
+                    {
+                        data = payments,
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        message = "Get all my payments successfully",
+                        totalCount = payments?.Count ?? 0
+                    });
+                }
 
             }
             catch (Exception ex)
@@ -145,7 +155,7 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var payment = await _paymentIService.CreateAsync(paymentDto);
+                    var payment = await _paymentService.CreateAsync(paymentDto);
 
                     return Ok(new XBaseResult
                     {
@@ -156,7 +166,17 @@ namespace WebXeDapAPI.Controller
                         message = "Payment created successfully"
                     });
                 }
-                return BadRequest("Invalid user ID.");
+
+                var nonLoggedInPayment = await _paymentService.CreateAsync(paymentDto);
+
+                return Ok(new XBaseResult
+                {
+                    data = nonLoggedInPayment,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all my payments successfully",
+                });
+
 
             }
             catch (Exception ex)
@@ -188,7 +208,9 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var confirmedPayment = await _paymentIService.ConfirmAsync(paymentId);
+                    var confirmedPayment = await _paymentService.ConfirmAsync(paymentId);
+                    OrderWithDetailDto orderWithDetailDto = _orderService.GetByIdWithDetail(confirmedPayment.OrderId);
+                    await _stockService.DecreaseQuantityByOrderWithDetail(orderWithDetailDto);
 
                     return Ok(new XBaseResult
                     {
@@ -199,7 +221,15 @@ namespace WebXeDapAPI.Controller
                         message = "Payment confirmed"
                     });
                 }
-                return BadRequest("Invalid user ID.");
+                var nonLoggedInPayment = await _paymentService.ConfirmAsync(paymentId);
+
+                return Ok(new XBaseResult
+                {
+                    data = nonLoggedInPayment,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get all my payments successfully",
+                });
 
             }
             catch (Exception ex)
@@ -213,7 +243,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        
+
         [HttpPut("UpdateStatus")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -232,7 +262,7 @@ namespace WebXeDapAPI.Controller
                         return Unauthorized("The token is no longer valid. Please log in again.");
                     }
 
-                    var confirmedPayment = await _paymentIService.UpdateStatusAsync(paymentDto);
+                    var confirmedPayment = await _paymentService.UpdateStatusAsync(paymentDto);
 
                     return Ok(new XBaseResult
                     {

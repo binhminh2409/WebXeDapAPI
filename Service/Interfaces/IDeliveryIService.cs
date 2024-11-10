@@ -7,6 +7,11 @@ namespace WebXeDapAPI.Service.Interfaces
     {
         public Task<DeliveryDto> CreateAsync(PaymentDto payment, string cityFrom, string cityTo, string districtFrom, string districtTo);
 
+        public Task<DeliveryDto> CreateSelfAsync(PaymentDto payment);
+
+        public Task<DeliveryDto> UpdateAsync(DeliveryDto deliveryDto);
+
+
         public Task<List<DeliveryDto>> FindAll();
 
         public Task<DeliveryDto> FindById(int deliveryId);

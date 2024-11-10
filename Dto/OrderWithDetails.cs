@@ -11,6 +11,6 @@ namespace WebXeDapAPI.Dto
         public List<int> Cart { get; set; } = new List<int>();
         public string No_ { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
-        public OrderDetailDto OrderDetails { get; set; } = new OrderDetailDto();
+        public List<OrderDetailDto> OrderDetails { get; set; } = new List<OrderDetailDto>();
     }
 }

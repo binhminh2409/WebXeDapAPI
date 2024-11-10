@@ -29,32 +29,19 @@ namespace WebXeDapAPI.Controller
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<ActionResult<DeliveryDto>> Create([FromBody] PaymentDto paymentDto, string cityFrom, string cityTo, string districtFrom, string districtTo)
+        public async Task<ActionResult<DeliveryDto>> Create([FromBody] PaymentDto paymentDto)
         {
             try
             {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                var deliveryDto = await _deliveryService.CreateSelfAsync(paymentDto);
 
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                return Ok(new XBaseResult
                 {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var deliveryDto = await _deliveryService.CreateAsync(paymentDto, cityFrom, cityTo, districtFrom, districtTo);
-
-                    return Ok(new XBaseResult
-                    {
-                        data = deliveryDto,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Delivery created"
-                    });
-                }
-                return BadRequest("Invalid user ID.");
+                    data = deliveryDto,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Delivery created"
+                });
 
             }
             catch (Exception ex)
@@ -75,28 +62,15 @@ namespace WebXeDapAPI.Controller
         {
             try
             {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                var deliveryDtos = await _deliveryService.FindAll();
 
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                return Ok(new XBaseResult
                 {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var deliveryDtos = await _deliveryService.FindAll();
-
-                    return Ok(new XBaseResult
-                    {
-                        data = deliveryDtos,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Delivery created"
-                    });
-                }
-                return BadRequest("Invalid user ID.");
+                    data = deliveryDtos,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Delivery created"
+                });
 
             }
             catch (Exception ex)
@@ -117,28 +91,15 @@ namespace WebXeDapAPI.Controller
         {
             try
             {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                var deliveryDto = await _deliveryService.FindById(deliveryId);
 
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                return Ok(new XBaseResult
                 {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var deliveryDto = await _deliveryService.FindById(deliveryId);
-
-                    return Ok(new XBaseResult
-                    {
-                        data = deliveryDto,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Delivery retreived"
-                    });
-                }
-                return BadRequest("Invalid user ID.");
+                    data = deliveryDto,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Delivery retreived"
+                });
 
             }
             catch (Exception ex)
@@ -159,28 +120,15 @@ namespace WebXeDapAPI.Controller
         {
             try
             {
-                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                var deliveryDto = await _deliveryService.FindByOrderId(orderId);
 
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                return Ok(new XBaseResult
                 {
-                    var tokenStatus = _token.CheckTokenStatus(userId);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        // Token không còn hợp lệ, từ chối yêu cầu
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-
-                    var deliveryDto = await _deliveryService.FindByOrderId(orderId);
-
-                    return Ok(new XBaseResult
-                    {
-                        data = deliveryDto,
-                        success = true,
-                        httpStatusCode = (int)HttpStatusCode.OK,
-                        message = "Delivery retreived"
-                    });
-                }
-                return BadRequest("Invalid user ID.");
+                    data = deliveryDto,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Delivery retreived"
+                });
 
             }
             catch (Exception ex)
@@ -217,6 +165,48 @@ namespace WebXeDapAPI.Controller
                     return Ok(new XBaseResult
                     {
                         data = deliveryDto,
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        message = "Delivery retreived"
+                    });
+                }
+                return BadRequest("Invalid user ID.");
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "An error occurred while creating delivery: " + ex.Message
+                });
+            }
+        }
+
+        [HttpGet("Update")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<DeliveryDto>> Update([FromBody] DeliveryDto deliveryDto)
+        {
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    var tokenStatus = _token.CheckTokenStatus(userId);
+                    if (tokenStatus == StatusToken.Expired)
+                    {
+                        // Token không còn hợp lệ, từ chối yêu cầu
+                        return Unauthorized("The token is no longer valid. Please log in again.");
+                    }
+
+                    var updatedDto = await _deliveryService.UpdateAsync(deliveryDto);
+
+                    return Ok(new XBaseResult
+                    {
+                        data = updatedDto,
                         success = true,
                         httpStatusCode = (int)HttpStatusCode.OK,
                         message = "Delivery retreived"

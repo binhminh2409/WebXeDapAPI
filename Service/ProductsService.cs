@@ -61,9 +61,21 @@ namespace WebXeDapAPI.Service
                     brandName = brand.BrandName,
                     Colors = productsDto.Colors,
                     Status = StatusProduct.Available,
+                    Size = productsDto.Size
                 };
 
                 await _dbContext.Products.AddAsync(products);
+
+                // Create stock
+                Stock stock = new Stock
+                {
+                    Product = products,
+                    Quantity = 0,
+                };
+
+                await _dbContext.Stocks.AddAsync(stock);
+
+
                 await _dbContext.SaveChangesAsync();
                 return products;
             }
@@ -242,6 +254,12 @@ namespace WebXeDapAPI.Service
                 if (updateProductDto.Price > 0)
                 {
                     product.Price = updateProductDto.Price;
+                }
+
+                if (updateProductDto.Size != null)
+                {
+
+                    product.Size = updateProductDto.Size;
                 }
 
                 if (updateProductDto.PriceHasDecreased > 0)

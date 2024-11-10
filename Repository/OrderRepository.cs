@@ -23,6 +23,12 @@ namespace WebXeDapAPI.Repository
             return order;
         }
 
+        public List<Order> GetByGuid(string Guid)
+        {
+            List<Order>? orders = _dbContext.Orders.Where(o => o.Guid == Guid).ToList();
+            return orders;
+        }
+
         public List<Order> GetByUser(int userId)
         {
             List<Order>? orders = _dbContext.Orders.Where(o => o.UserID == userId).ToList();

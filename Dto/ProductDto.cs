@@ -5,6 +5,7 @@ namespace Data.Dto
 {
     public class ProductDto
     {
+        public int? Id;
         public string ProductName { get; set; }
         public IFormFile image { get; set; }
         public decimal Price { get; set; }
@@ -14,5 +15,7 @@ namespace Data.Dto
         public int BrandId { get; set; }
         public int TypeId { get; set; }
         public string Colors { get; set; }
+
+        public string? Size { get; set; }
     }
 }

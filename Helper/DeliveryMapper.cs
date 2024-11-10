@@ -18,6 +18,7 @@ namespace WebXeDapAPI.Helper
                 Payment = payment,
                 No_ = dto.No_,
                 UserId = dto.UserId,
+                ETA = DateTime.UtcNow,
                 CreatedTime = DateTime.UtcNow, // Set current time when creating
                 UpdatedTime = DateTime.UtcNow  // Set current time when creating
             };

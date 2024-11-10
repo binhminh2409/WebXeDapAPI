@@ -13,5 +13,6 @@ namespace WebXeDapAPI.Dto
         public IFormFile? Image { get; set; }
         public DateTime? Create { get; set; }
         public StatusProduct Status { get; set; }
+        public string? Size { get; set; }
     }
 }
