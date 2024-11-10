@@ -18,7 +18,7 @@ namespace WebXeDapAPI.Controller
         private readonly IProductsIService _productsService;
         private readonly IProductsInterface _productsInterface;
         private readonly Token _token;
-        public ProductsController(IProductsIService productsIService,IProductsInterface productsInterface,Token token)
+        public ProductsController(IProductsIService productsIService, IProductsInterface productsInterface, Token token)
         {
             _productsInterface = productsInterface;
             _productsService = productsIService;
@@ -145,7 +145,7 @@ namespace WebXeDapAPI.Controller
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetListTypeName([FromQuery] string keyword,int limit = 8)
+        public IActionResult GetListTypeName([FromQuery] string keyword, int limit = 8)
         {
             try
             {
@@ -167,7 +167,7 @@ namespace WebXeDapAPI.Controller
                         message = "Invalid slide data"
                     });
                 }
-                var typeName = _productsInterface.GetAllTypeName(keyword,limit);
+                var typeName = _productsInterface.GetAllTypeName(keyword, limit);
                 return Ok(new XBaseResult
                 {
                     data = typeName,
@@ -177,7 +177,7 @@ namespace WebXeDapAPI.Controller
                     message = "List"
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {
@@ -456,6 +456,34 @@ namespace WebXeDapAPI.Controller
                     httpStatusCode = (int)HttpStatusCode.BadRequest,
                     totalCount = 0,
                     message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("GetViewBoSuuTap")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetBoSuuTap(string productType)
+        {
+            try
+            {
+                var result = await _productsService.GetBoSuuTap(productType);
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = result.Count,
+                    message = "GetBoSuuTap Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "Đã xảy ra lỗi: " + ex.Message
                 });
             }
         }

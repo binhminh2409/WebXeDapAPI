@@ -39,6 +39,7 @@ namespace WebXeDapAPI.Service
                     Name = slideDto.Name,
                     Url = slideDto.Url,
                     Description = slideDto.Description,
+                    PriceHasDecreased = slideDto.PriceHasDecreased,
                     Image = imagePath,
                     Sort = slideDto.Sort,
                 };
@@ -66,7 +67,7 @@ namespace WebXeDapAPI.Service
             try
             {
                 var slide = _dbContext.Slides.FirstOrDefault(x => x.Id == Id);
-                if(slide == null)
+                if (slide == null)
                 {
                     throw new Exception("slideId not found");
                 }
@@ -74,9 +75,27 @@ namespace WebXeDapAPI.Service
                 _dbContext.SaveChanges();
                 return true;
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
-                throw new Exception("There was an error while deleting the Slide",ex);
+                throw new Exception("There was an error while deleting the Slide", ex);
+            }
+        }
+
+        public Task<Slide> GetProductName(string slidetName)
+        {
+            try
+            {
+                var slide = _dbContext.Slides.FirstOrDefault(s => s.Name == slidetName);
+                if (slide == null)
+                {
+                    return Task.FromResult<Slide>(null);
+                }
+                return Task.FromResult(slide);
+            }
+            catch (Exception ex)
+            {
+                // Ghi log hoặc xử lý lỗi tại đây
+                throw new Exception("An error occurred while retrieving the slide.", ex);
             }
         }
 
@@ -160,7 +179,7 @@ namespace WebXeDapAPI.Service
             try
             {
                 var slide = _dbContext.Slides.FirstOrDefault(x => x.Id == updateSlideDto.Id);
-                if(slide == null)
+                if (slide == null)
                 {
                     throw new Exception("slideId not found");
                 }
@@ -173,9 +192,9 @@ namespace WebXeDapAPI.Service
                 _dbContext.SaveChanges();
                 return "Updata Successfully";
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                throw new Exception("An error occurred while updating Slides",ex);
+                throw new Exception("An error occurred while updating Slides", ex);
             }
         }
         private async Task<string> SaveImageAsync(IFormFile image)
