@@ -4,7 +4,7 @@ namespace WebXeDapAPI.Models.Enum
     {
         ORDERED,
         AWAITING,
-        ARIVED,
+        ARRIVED,
         RETURNED,
         SUCCESSFUL
     }
