@@ -55,7 +55,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        [HttpPost("All")]
+        [HttpGet("All")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<ActionResult<DeliveryDto>> GetAll()
