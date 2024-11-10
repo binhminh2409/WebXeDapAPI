@@ -14,6 +14,8 @@ namespace WebXeDapAPI.Models
         public DateTime CreatedTime { get; set; } = DateTime.UtcNow;
         public string Type { get; set; }
 
+        public int UserId { get; set; }
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 

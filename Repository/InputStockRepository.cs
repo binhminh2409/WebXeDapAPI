@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WebXeDapAPI.Models;
 using WebXeDapAPI.Data;
-using WebXeDapAPI.Service.Interfaces; // Adjust according to your project structure
+using WebXeDapAPI.Service.Interfaces;
+using System.Runtime.CompilerServices; // Adjust according to your project structure
 
 namespace WebXeDapAPI.Service.Implementations
 {
@@ -33,9 +34,9 @@ namespace WebXeDapAPI.Service.Implementations
             return await _dbContext.InputStocks.FindAsync(id);
         }
 
-        public async Task<IEnumerable<InputStock>> GetAllAsync()
+        public async Task<List<InputStock>> GetAllAsync()
         {
-            return await _dbContext.InputStocks.ToListAsync();
+            return await _dbContext.InputStocks.Include(s => s.Product).ToListAsync();
         }
 
         public async Task<InputStock> UpdateAsync(InputStock inputStock)

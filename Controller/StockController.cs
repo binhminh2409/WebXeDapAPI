@@ -1,6 +1,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebXeDapAPI.Common;
 using WebXeDapAPI.Helper;
@@ -81,18 +83,54 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        
+
         [HttpPost("Restock")]
         [ProducesResponseType(200)]
+        [Authorize(Roles = "ManagerMent")]
         [ProducesResponseType(400)]
         public async Task<IActionResult> Restock([FromBody] List<InputStockDto> inputStockDtos)
         {
             try
             {
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+
+                int userId = int.Parse(userIdClaim.Value);
+                foreach (var dto in inputStockDtos)
+                {
+                    dto.UserId = userId;
+                }
+
                 List<InputStockDto> createdInputStockDtos = await _stockService.Restock(inputStockDtos);
                 return Ok(new XBaseResult
                 {
                     data = createdInputStockDtos,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Restock successful"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("Restock/History")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> RestockHistory()
+        {
+            try
+            {
+                List<InputStockDto> inputStockDtos = await _stockService.RestockHistory();
+                return Ok(new XBaseResult
+                {
+                    data = inputStockDtos,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
                     message = "Restock successful"
