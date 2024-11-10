@@ -69,7 +69,7 @@ namespace WebXeDapAPI.Controller
                 var delete = _brandIService.Delete(Id);
                 return Ok(delete);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest($"An error occurred: {ex.Message}");
             }
@@ -108,11 +108,11 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        [HttpGet("/api/Brand/{brandId}")]
+        [HttpGet("{brandId}")]
         // [Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult UpdateBrand([FromRoute] int brandId)
+        public IActionResult GetById([FromRoute] int brandId)
         {
             try
             {
@@ -137,5 +137,33 @@ namespace WebXeDapAPI.Controller
             }
         }
 
+        [HttpGet("All")]
+        // [Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAll()
+        {
+            try
+            {
+
+                var brands = _brandIService.getAll();
+                return Ok(new XBaseResult
+                {
+                    data = brands,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

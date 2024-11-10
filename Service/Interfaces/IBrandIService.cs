@@ -10,6 +10,6 @@ namespace WebXeDapAPI.Service.Interfaces
         bool Delete(int id);
 
         public Brand getById(int id);
-
+        public List<Brand> getAll();
     }
 }

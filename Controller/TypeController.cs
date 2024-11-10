@@ -120,6 +120,28 @@ namespace WebXeDapAPI.Controller
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
+
+        [HttpGet("All")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAll()
+        {
+            try
+            {
+                var types = _typeIService.getAll();
+                return Ok(new XBaseResult
+                {
+                    data = types,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
     }
 }
  

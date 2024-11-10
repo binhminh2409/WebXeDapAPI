@@ -72,5 +72,9 @@ namespace WebXeDapAPI.Service
         public Brand getById(int id) {
             return _dbContext.Brands.Find(id);
         }
+
+        public List<Brand> getAll() {
+            return _dbContext.Brands.ToList();
+        }
     }
 }

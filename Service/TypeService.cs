@@ -75,5 +75,9 @@ namespace WebXeDapAPI.Service
         public Type getById(int id) {
             return _dbContext.Types.Find(id);
         }
+
+        public List<Type> getAll() {
+            return _dbContext.Types.ToList();
+        }
     }
 }
