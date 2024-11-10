@@ -506,5 +506,35 @@ namespace WebXeDapAPI.Service
                 throw new Exception("An error occurred while fetching the product type", ex);
             }
         }
+
+        public async Task<List<productsSearchKey>> SearchKey(string keyWord)
+        {
+            try
+            {
+                var products = await _dbContext.Products
+                    .Where(p => p.ProductName.Contains(keyWord) || p.brandName.Contains(keyWord) || p.TypeName.Contains(keyWord))
+                    .Select(p => new productsSearchKey
+                    {
+                        Id = p.Id,
+                        ProductName = p.ProductName,
+                        Price = p.Price,
+                        PriceHasDecreased = p.PriceHasDecreased,
+                        Description = p.Description,
+                        Image = p.Image,
+                        brandName = p.brandName,
+                        TypeName = p.TypeName,
+                        Colors = p.Colors,
+                        Size = p.Size,
+                        Status = p.Status.ToString()
+                    })
+                    .ToListAsync();
+
+                return products;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tìm kiếm sản phẩm.", ex);
+            }
+        }
     }
 }

@@ -487,5 +487,33 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
+        [HttpGet("SearchKey")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> SearchKey(string keyWord)
+        {
+            try
+            {
+                var result = await _productsService.SearchKey(keyWord);
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = result.Count,
+                    message = "keyWord Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "Đã xảy ra lỗi: " + ex.Message
+                });
+            }
+        }
     }
 }
