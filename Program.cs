@@ -57,6 +57,7 @@ builder.Services.AddScoped<IAccountingIService, AccountingService>();
 builder.Services.AddScoped<IStockInterface, StockRepository>();
 builder.Services.AddScoped<IStockIService, StockService>();
 builder.Services.AddScoped<IInputStockInterface, InputStockRepository>();
+builder.Services.AddScoped<IAdsIService, AdsService>();
 
 
 builder.Services.AddScoped<IDeliveryInterface, DeliveryRepository>();

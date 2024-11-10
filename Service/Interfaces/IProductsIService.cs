@@ -20,5 +20,6 @@ namespace WebXeDapAPI.Service.Interfaces
         Task<List<ProductTypeInfDto>> GetProductName(string productName);
         List<ProductGetAllInfDto> GetAllProduct();
         Task<List<GetViewProductType>> GetBoSuuTap(string productType);
+        Task<List<productsSearchKey>> SearchKey(string keyWord);
     }
 }
