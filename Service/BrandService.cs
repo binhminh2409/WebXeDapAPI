@@ -68,5 +68,9 @@ namespace WebXeDapAPI.Service
                 throw new Exception("An error occurred while updating Brand", ex);
             }
         }
+
+        public Brand getById(int id) {
+            return _dbContext.Brands.Find(id);
+        }
     }
 }

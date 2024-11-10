@@ -108,5 +108,34 @@ namespace WebXeDapAPI.Controller
             }
         }
 
+        [HttpGet("/api/Brand/{brandId}")]
+        // [Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult UpdateBrand([FromRoute] int brandId)
+        {
+            try
+            {
+
+                var brand = _brandIService.getById(brandId);
+                return Ok(new XBaseResult
+                {
+                    data = brand,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Get Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
     }
 }

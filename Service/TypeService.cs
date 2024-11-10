@@ -71,5 +71,9 @@ namespace WebXeDapAPI.Service
                 throw new Exception("There was an error while updating Type", ex);
             }
         }
+
+        public Type getById(int id) {
+            return _dbContext.Types.Find(id);
+        }
     }
 }
