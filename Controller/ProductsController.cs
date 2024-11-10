@@ -284,7 +284,7 @@ namespace WebXeDapAPI.Controller
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetProductsWithinPriceRangeAndBrand([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice, [FromQuery] string? brandsName)
+        public IActionResult GetProductsWithinPriceRangeAndBrand([FromQuery] string productType, decimal minPrice, [FromQuery] decimal maxPrice, [FromQuery] string? brandsName)
         {
             try
             {
@@ -298,7 +298,7 @@ namespace WebXeDapAPI.Controller
                     });
                 }
 
-                var getPrice = _productsService.GetProductsWithinPriceRangeAndBrand(minPrice, maxPrice, brandsName);
+                var getPrice = _productsService.GetProductsWithinPriceRangeAndBrand(productType, minPrice, maxPrice, brandsName);
 
                 return Ok(new XBaseResult
                 {
