@@ -14,6 +14,10 @@ namespace WebXeDapAPI.Models
         public DateTime CreatedTime { get; set; } = DateTime.UtcNow;
         public string Type { get; set; }
 
+        public string Status { get; set; }
+        public bool Paid { get; set; } = false;
+        public string? ReturnReason { get; set; }
+
         public int UserId { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]

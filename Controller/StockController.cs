@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebXeDapAPI.Common;
 using WebXeDapAPI.Helper;
 using WebXeDapAPI.Models;
+using WebXeDapAPI.Models.Enum;
 using WebXeDapAPI.Repository.Interface;
 
 namespace WebXeDapAPI.Controller
@@ -84,11 +85,11 @@ namespace WebXeDapAPI.Controller
         }
 
 
-        [HttpPost("Restock")]
+        [HttpPost("Restock/Order")]
         [ProducesResponseType(200)]
         [Authorize(Roles = "ManagerMent")]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Restock([FromBody] List<InputStockDto> inputStockDtos)
+        public async Task<IActionResult> RestockOrder([FromBody] List<InputStockDto> inputStockDtos)
         {
             try
             {
@@ -100,13 +101,98 @@ namespace WebXeDapAPI.Controller
                     dto.UserId = userId;
                 }
 
-                List<InputStockDto> createdInputStockDtos = await _stockService.Restock(inputStockDtos);
+                List<InputStockDto> createdInputStockDtos = await _stockService.RestockOrder(inputStockDtos);
                 return Ok(new XBaseResult
                 {
                     data = createdInputStockDtos,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    message = "Restock successful"
+                    message = "Restock ordered successful"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+
+        [HttpPost("Restock/Arrived/{batchNo_}")]
+        [ProducesResponseType(200)]
+        [Authorize(Roles = "ManagerMent")]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> RestockOrderArrived([FromRoute] string batchNo_)
+        {
+            try
+            {
+                List<InputStockDto> createdInputStockDtos = await _stockService.RestockOrderUpdateStatus(batchNo_, "ARRIVED");
+                return Ok(new XBaseResult
+                {
+                    data = createdInputStockDtos,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Restock ordered successful"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("Restock/Returned/{batchNo_}")]
+        [ProducesResponseType(200)]
+        [Authorize(Roles = "ManagerMent")]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> RestockOrderReturned([FromRoute] string batchNo_)
+        {
+            try
+            {
+                List<InputStockDto> createdInputStockDtos = await _stockService.RestockOrderUpdateStatus(batchNo_, "RETURNED");
+                return Ok(new XBaseResult
+                {
+                    data = createdInputStockDtos,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Restock ordered successful"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("Restock/Confirm/{batchNo_}")]
+        [ProducesResponseType(200)]
+        [Authorize(Roles = "ManagerMent")]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> RestockOrderSuccessful([FromRoute] string batchNo_)
+        {
+            try
+            {
+                List<InputStockDto> createdInputStockDtos = await _stockService.RestockOrderUpdateStatus(batchNo_, "SUCCESSFUL");
+                return Ok(new XBaseResult
+                {
+                    data = createdInputStockDtos,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Restock ordered successful"
                 });
             }
             catch (Exception ex)
