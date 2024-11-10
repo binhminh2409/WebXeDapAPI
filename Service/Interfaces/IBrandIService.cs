@@ -9,5 +9,7 @@ namespace WebXeDapAPI.Service.Interfaces
         string Update(BrandDto brandDto);
         bool Delete(int id);
 
+        public Brand getById(int id);
+
     }
 }

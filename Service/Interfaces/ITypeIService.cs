@@ -7,5 +7,7 @@ namespace WebXeDapAPI.Service.Interfaces
         public Type Create(Type type);
         string Update(TypeDto typeDto);
         bool Delete(int typeId);
+
+        public Type getById(int id);
     }
 }
