@@ -209,8 +209,6 @@ namespace WebXeDapAPI.Controller
                     }
 
                     var confirmedPayment = await _paymentService.ConfirmAsync(paymentId);
-                    OrderWithDetailDto orderWithDetailDto = _orderService.GetByIdWithDetail(confirmedPayment.OrderId);
-                    await _stockService.DecreaseQuantityByOrderWithDetail(orderWithDetailDto);
 
                     return Ok(new XBaseResult
                     {

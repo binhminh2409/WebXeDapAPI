@@ -57,5 +57,11 @@ namespace WebXeDapAPI.Service.Implementations
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<InputStock>> GetByBatchNo(string batchNo_)
+        {
+            return await _dbContext.InputStocks.Include(s => s.Product).Where(s => s.BatchNo_ == batchNo_).ToListAsync();
+        }
+
     }
 }

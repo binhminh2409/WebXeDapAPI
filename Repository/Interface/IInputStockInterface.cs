@@ -11,5 +11,6 @@ namespace WebXeDapAPI.Service.Interfaces
         Task<List<InputStock>> GetAllAsync();
         Task<InputStock> UpdateAsync(InputStock inputStock);
         Task<bool> DeleteAsync(int id);
+        Task<List<InputStock>> GetByBatchNo(string batchNo_);
     }
 }

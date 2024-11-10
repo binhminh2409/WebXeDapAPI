@@ -4,8 +4,11 @@ using System.Text;
 using WebXeDapAPI.Dto;
 using WebXeDapAPI.Helper;
 using WebXeDapAPI.Models;
+using WebXeDapAPI.Models.Enum;
 using WebXeDapAPI.Repository.Interface;
+using WebXeDapAPI.Service.Implementations;
 using WebXeDapAPI.Service.Interfaces;
+using WebXeDapAPI.Utilities;
 
 namespace WebXeDapAPI.Service
 {
@@ -162,7 +165,7 @@ namespace WebXeDapAPI.Service
             return updatedStocksDto;
         }
 
-        public async Task<List<InputStockDto>> Restock(List<InputStockDto> inputStockDtos)
+        public async Task<List<InputStockDto>> RestockOrder(List<InputStockDto> inputStockDtos)
         {
             try
             {
@@ -189,6 +192,9 @@ namespace WebXeDapAPI.Service
                     decimal totalPrice = inputStockDto.Price * inputStockDto.Quantity;
                     inputStockDto.TotalPrice = totalPrice;
 
+                    // With Order status
+                    inputStockDto.Status = "ORDERED";
+
                     // Map dto to entity
                     InputStock inputStock = StockMapper.DtoToEntity(inputStockDto, product);
                     inputStocks.Add(inputStock);
@@ -214,6 +220,50 @@ namespace WebXeDapAPI.Service
                 }
 
                 return createdInputStockDtos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error at Stock Service: {e.Message}");
+            }
+        }
+
+        public async Task<List<InputStockDto>> RestockOrderUpdateStatus(string batchNo_, string status)
+        {
+            try
+            {
+                InputStockStatus updatedStatus = StockEnumHelper.StringToEnum(status.ToUpper());
+                List<InputStock> inputStocks = await _inputStockInterface.GetByBatchNo(batchNo_);
+                List<InputStockDto> updatedInputStockDtos = new();
+
+                // Update status
+                foreach (var inputStock in inputStocks)
+                {
+                    inputStock.Status = updatedStatus;
+                    if (updatedStatus == InputStockStatus.SUCCESSFUL)
+                    {
+                        inputStock.Paid = true;
+                    }
+                }
+                foreach (var inputStock in inputStocks)
+                {
+                    await _inputStockInterface.UpdateAsync(inputStock);
+
+                    if (updatedStatus == InputStockStatus.SUCCESSFUL)
+                    {                    
+                        // Increase stock number
+                        Stock stock = await _stockInterface.GetByProductIdAsync(inputStock.Product.Id);
+                        await _stockInterface.IncreaseQuantity(stock.Id, inputStock.Quantity);
+                    }
+                }
+
+                foreach (var inputStock in inputStocks)
+                {
+                    InputStockDto updatedInputStockDto = StockMapper.EntityToDto(inputStock);
+                    updatedInputStockDtos.Add(updatedInputStockDto);
+                }
+
+                return updatedInputStockDtos;
+
             }
             catch (Exception e)
             {

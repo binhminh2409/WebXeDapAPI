@@ -10,6 +10,7 @@ using Data.Dto;
 using WebXeDapAPI.Dto;
 using WebXeDapAPI.Models;
 using WebXeDapAPI.Models.Enum;
+using WebXeDapAPI.Utilities;
 
 namespace WebXeDapAPI.Helper
 {
@@ -62,6 +63,9 @@ namespace WebXeDapAPI.Helper
                 Price = dto.Price,
                 TotalPrice = dto.TotalPrice,
                 BatchNo_ = dto.BatchNo_,
+                Paid = dto.Paid,
+                ReturnReason = "",
+                Status = StockEnumHelper.StringToEnum(dto.Status),
                 Type = dto.Type,
                 UserId = dto.UserId
             };
@@ -84,6 +88,9 @@ namespace WebXeDapAPI.Helper
                 Quantity = inputStock.Quantity,
                 CreatedTime = inputStock.CreatedTime,
                 Price = inputStock.Price,
+                Paid = inputStock.Paid,
+                ReturnReason = inputStock.ReturnReason,
+                Status = inputStock.Status.ToString(),
                 TotalPrice = inputStock.TotalPrice,
                 BatchNo_ = inputStock.BatchNo_,
                 Type = inputStock.Type,
