@@ -143,67 +143,6 @@ namespace WebXeDapAPI.Service
             }
         }
 
-        public async Task<List<InputStockDto>> Restock(List<InputStockDto> inputStockDtos)
-        {
-            try
-            {
-                List<InputStock> inputStocks = new();
-                List<InputStock> createdInputStocks = new();
-                List<InputStockDto> createdInputStockDtos = new();
-
-                // Create batch number
-                string batchNo_ = generateBatchNumber();
-
-                DebugPrinter.DebugPrint("111111");
-
-                foreach (var inputStockDto in inputStockDtos)
-                {
-                    // Get product
-                    Products product = _productsInterface.GetProductsId(inputStockDto.ProductId ?? throw new Exception($"Error restocking: Product invalid"));
-
-                    // Assign batch no
-                    inputStockDto.BatchNo_ = batchNo_;
-
-                    // Calculate total price
-                    decimal totalPrice = inputStockDto.Price * inputStockDto.Quantity;
-                    inputStockDto.TotalPrice = totalPrice;
-
-                    // Map dto to entity
-                    InputStock inputStock = StockMapper.DtoToEntity(inputStockDto, product);
-                    inputStocks.Add(inputStock);
-                }
-                DebugPrinter.DebugPrint("22222");
-
-
-                // For each entity, create inputStock and store into db
-                foreach (var inputStock in inputStocks)
-                {
-                    InputStock createdInputStock = await _inputStockInterface.CreateAsync(inputStock);
-                    createdInputStocks.Add(createdInputStock);
-                }
-
-                DebugPrinter.DebugPrint("3333");
-
-                // Map created inputsStocks back into Dto
-                foreach (var createdInputStock in createdInputStocks)
-                {
-                    InputStockDto createdInputStockDto = StockMapper.EntityToDto(createdInputStock);
-                    createdInputStockDtos.Add(createdInputStockDto);
-
-                    // Increase stock number
-                    Stock stock = await _stockInterface.GetByProductIdAsync(createdInputStock.Product.Id);
-                    await _stockInterface.IncreaseQuantity(stock.Id, createdInputStock.Quantity);
-                }
-                DebugPrinter.DebugPrint("4444");
-
-                return createdInputStockDtos;
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error at Stock Service: {e.Message}");
-            }
-        }
-
         public async Task<List<StockDto>> DecreaseQuantityByOrderWithDetail(OrderWithDetailDto orderWithDetailDto)
         {
             List<Stock> updatedStocks = new();
@@ -221,6 +160,77 @@ namespace WebXeDapAPI.Service
             }
 
             return updatedStocksDto;
+        }
+
+        public async Task<List<InputStockDto>> Restock(List<InputStockDto> inputStockDtos)
+        {
+            try
+            {
+                List<InputStock> inputStocks = new();
+                List<InputStock> createdInputStocks = new();
+                List<InputStockDto> createdInputStockDtos = new();
+
+                // Create batch number
+                string batchNo_ = generateBatchNumber();
+
+                foreach (var inputStockDto in inputStockDtos)
+                {
+                    // Get product
+                    Products product = _productsInterface.GetProductsId(
+                        inputStockDto.ProductId == null || inputStockDto.ProductId == 0
+                            ? throw new Exception("Error restocking: Product invalid")
+                            : inputStockDto.ProductId.Value
+                    );
+
+                    // Assign batch no
+                    inputStockDto.BatchNo_ = batchNo_;
+
+                    // Calculate total price
+                    decimal totalPrice = inputStockDto.Price * inputStockDto.Quantity;
+                    inputStockDto.TotalPrice = totalPrice;
+
+                    // Map dto to entity
+                    InputStock inputStock = StockMapper.DtoToEntity(inputStockDto, product);
+                    inputStocks.Add(inputStock);
+                }
+
+
+                // For each entity, create inputStock and store into db
+                foreach (var inputStock in inputStocks)
+                {
+                    InputStock createdInputStock = await _inputStockInterface.CreateAsync(inputStock);
+                    createdInputStocks.Add(createdInputStock);
+                }
+
+                // Map created inputsStocks back into Dto
+                foreach (var createdInputStock in createdInputStocks)
+                {
+                    InputStockDto createdInputStockDto = StockMapper.EntityToDto(createdInputStock);
+                    createdInputStockDtos.Add(createdInputStockDto);
+
+                    // Increase stock number
+                    Stock stock = await _stockInterface.GetByProductIdAsync(createdInputStock.Product.Id);
+                    await _stockInterface.IncreaseQuantity(stock.Id, createdInputStock.Quantity);
+                }
+
+                return createdInputStockDtos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error at Stock Service: {e.Message}");
+            }
+        }
+
+        public async Task<List<InputStockDto>> RestockHistory()
+        {
+            List<InputStock> inputStocks = await _inputStockInterface.GetAllAsync();
+            List<InputStockDto> inputStockDtos = new();
+            foreach (var entity in inputStocks)
+            {
+                inputStockDtos.Add(StockMapper.EntityToDto(entity));
+            }
+
+            return inputStockDtos;
         }
     }
 }

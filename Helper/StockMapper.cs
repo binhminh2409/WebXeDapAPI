@@ -62,7 +62,8 @@ namespace WebXeDapAPI.Helper
                 Price = dto.Price,
                 TotalPrice = dto.TotalPrice,
                 BatchNo_ = dto.BatchNo_,
-                Type = dto.Type
+                Type = dto.Type,
+                UserId = dto.UserId
             };
         }
 
@@ -85,7 +86,8 @@ namespace WebXeDapAPI.Helper
                 Price = inputStock.Price,
                 TotalPrice = inputStock.TotalPrice,
                 BatchNo_ = inputStock.BatchNo_,
-                Type = inputStock.Type
+                Type = inputStock.Type,
+                UserId = inputStock.UserId
             };
             return dto;
         }

@@ -20,5 +20,7 @@ namespace WebXeDapAPI.Repository.Interface
         Task<List<StockDto>> DecreaseQuantityByOrderWithDetail(OrderWithDetailDto orderWithDetailDto);
 
         Task<List<InputStockDto>> Restock(List<InputStockDto> inputStockDtos);
+
+        Task<List<InputStockDto>> RestockHistory();
     }
 }
