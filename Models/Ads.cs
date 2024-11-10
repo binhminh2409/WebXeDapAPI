@@ -10,6 +10,8 @@ namespace WebXeDapAPI.Models
 
         public string Name { get; set; }
 
+        public string Url { get; set; }
+
         public DateTime Create { get; set; }
 
         public string Image { get; set; }
