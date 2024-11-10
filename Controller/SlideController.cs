@@ -233,5 +233,33 @@ namespace WebXeDapAPI.Controller
                 });
             }
         }
+
+        [HttpGet("SlideName")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetSlideName(string slideName)
+        {
+            try
+            {
+                var getlist = _slideIService.GetProductName(slideName);
+                return Ok(new XBaseResult
+                {
+                    data = getlist,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = getlist.Id,
+                    message = "Getlist Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

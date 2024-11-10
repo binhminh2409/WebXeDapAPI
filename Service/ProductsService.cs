@@ -296,7 +296,7 @@ namespace WebXeDapAPI.Service
             }
         }
 
-        public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(string productType,decimal minPrice, decimal maxPrice, string? brandsName)
+        public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(string productType, decimal minPrice, decimal maxPrice, string? brandsName)
         {
             // Giả sử _context là DbContext chứa các DbSet cho Product và Type
             var products = (from p in _dbContext.Products
@@ -464,6 +464,47 @@ namespace WebXeDapAPI.Service
                 }).
                 ToList();
             return products;
+        }
+
+        public async Task<List<GetViewProductType>> GetBoSuuTap(string productType)
+        {
+            try
+            {
+                var type = await _dbContext.Types.FirstOrDefaultAsync(x => x.ProductType == productType);
+                if (type == null)
+                {
+                    throw new Exception("TypeName not found");
+                }
+
+                var typeProduct = await (from t in _dbContext.Types
+                                         join p in _dbContext.Products
+                                         on t.Id equals p.TypeId
+                                         where t.ProductType == productType
+                                         select new GetViewProductType
+                                         {
+                                             Id = p.Id,
+                                             ProductName = p.ProductName,
+                                             Price = p.Price,
+                                             PriceHasDecreased = p.PriceHasDecreased,
+                                             Description = p.Description,
+                                             Image = p.Image,
+                                             BrandId = p.BrandId,
+                                             brandName = p.brandName,
+                                             TypeId = p.TypeId,
+                                             TypeName = p.TypeName,
+                                             Colors = p.Colors,
+                                             ProductType_ProductType = t.ProductType
+                                         })
+                                         .GroupBy(p => p.ProductName) // Group by ProductName to remove duplicates
+                                         .Select(g => g.First()) // Select only the first item from each group
+                                         .ToListAsync();
+
+                return typeProduct;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching the product type", ex);
+            }
         }
     }
 }

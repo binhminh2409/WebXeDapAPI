@@ -1,4 +1,5 @@
 ﻿using WebXeDapAPI.Dto;
+using WebXeDapAPI.Models;
 
 namespace WebXeDapAPI.Service.Interfaces
 {
@@ -10,5 +11,6 @@ namespace WebXeDapAPI.Service.Interfaces
         byte[] GetSileBytesImage(string imagePath);
         byte[] GetSlideBytesImageid4(string imagePath);
         byte[] GetSlideBytesImageid5(string imagePath);
+        Task<Slide> GetProductName(string slidetName);
     }
 }
