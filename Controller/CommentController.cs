@@ -47,11 +47,11 @@ namespace WebXeDapAPI.Controller
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetById(int userId, int productId)
+        public async Task<IActionResult> GetById(int productId)
         {
             try
             {
-                var result = await _commentService.GetCommentsByUserId(userId, productId);
+                var result = await _commentService.GetCommentsByUserId(productId);
                 return Ok(new XBaseResult
                 {
                     data = result,
@@ -71,7 +71,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        
+
         [HttpGet("api/Comment/All")]
         public async Task<IActionResult> GetAll(int productId)
         {

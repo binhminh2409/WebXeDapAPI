@@ -58,13 +58,13 @@ namespace WebXeDapAPI.Service
             throw new NotImplementedException();
         }
 
-        public async Task<List<Comment>> GetCommentsByUserId(int userId, int productId)
+        public async Task<List<Comment>> GetCommentsByUserId(int productId)
         {
             try
             {
                 // Querying comments by both userId and productId
                 var comments = await _DBContext.Comments
-                    .Where(x => x.UserId == userId && x.ProductId == productId)
+                    .Where(x => x.ProductId == productId)
                     .ToListAsync();
 
                 // Check if comments list is empty
@@ -81,7 +81,7 @@ namespace WebXeDapAPI.Service
             }
         }
 
-        public async Task<List<Comment>> GetAll( int productId)
+        public async Task<List<Comment>> GetAll(int productId)
         {
             try
             {
@@ -109,5 +109,5 @@ namespace WebXeDapAPI.Service
             throw new NotImplementedException();
         }
     }
-    
+
 }
