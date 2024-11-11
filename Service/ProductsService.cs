@@ -384,15 +384,16 @@ namespace WebXeDapAPI.Service
         {
             try
             {
-                var type = await _dbContext.Types.FirstOrDefaultAsync(x => x.ProductType == productType);
+                var type = await _dbContext.Types.FirstOrDefaultAsync(x => x.Description == productType);
                 if (type == null)
                 {
                     throw new Exception("TypeName not found");
                 }
+
                 var typeProduct = await (from t in _dbContext.Types
                                          join p in _dbContext.Products
                                          on t.Id equals p.TypeId
-                                         where t.ProductType == productType
+                                         where t.Description == productType
                                          select new GetViewProductType
                                          {
                                              Id = p.Id,
@@ -407,7 +408,11 @@ namespace WebXeDapAPI.Service
                                              TypeName = p.TypeName,
                                              Colors = p.Colors,
                                              ProductType_ProductType = t.ProductType
-                                         }).ToListAsync();
+                                         })
+                                         .GroupBy(p => p.ProductName) // Nhóm theo ProductName
+                                         .Select(g => g.First()) // Lấy sản phẩm đầu tiên trong mỗi nhóm
+                                         .ToListAsync();
+
                 return typeProduct;
             }
             catch (Exception ex)
@@ -415,6 +420,7 @@ namespace WebXeDapAPI.Service
                 throw new Exception("An error occurred while fetching the product type", ex);
             }
         }
+
 
         public async Task<List<ProductTypeInfDto>> GetProductName(string productName)
         {

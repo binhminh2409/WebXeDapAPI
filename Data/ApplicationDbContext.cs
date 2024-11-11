@@ -157,10 +157,6 @@ namespace WebXeDapAPI.Data
                 .Property(x => x.PriceHasDecreased)
                 .HasColumnType("decimal(18,2)");
 
-            modelBuilder.Entity<Comment>()
-                .Property(x => x.Description)
-                .HasColumnType("text");
-
             // Configure Product relationship in InputStock
             modelBuilder.Entity<InputStock>()
                 .HasOne(i => i.Product)
