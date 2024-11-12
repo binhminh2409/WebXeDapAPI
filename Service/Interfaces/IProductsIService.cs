@@ -15,7 +15,7 @@ namespace WebXeDapAPI.Service.Interfaces
         List<Object> GetPriceHasDecreased();
         byte[] GetProductImageBytes(string imagePath);
         List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(string productType, decimal minPrice, decimal maxPrice, string brandsName);
-        ProductDetailWithColors GetProductsByNameAndColor(string productName, string? color);
+        ProductDetailWithColors GetProductsByNameAndColor(string productName, string? color, string? size);
         Task<List<GetViewProductType>> GetProductType(string ProductType);
         Task<List<ProductTypeInfDto>> GetProductName(string productName);
         List<ProductGetAllInfDto> GetAllProduct();
