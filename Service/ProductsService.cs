@@ -323,62 +323,65 @@ namespace WebXeDapAPI.Service
             return result;
         }
 
-        public ProductDetailWithColors GetProductsByNameAndColor(string productName, string? color)
+        public ProductDetailWithColors GetProductsByNameAndColor(string productName, string? color, string? size)
         {
             var result = new ProductDetailWithColors();
             var productsQuery = _dbContext.Products.Where(p => p.ProductName == productName);
+
             if (!productsQuery.Any())
             {
                 throw new Exception("Không tìm thấy sản phẩm nào với thông tin cung cấp.");
             }
+
+            var filteredProductQuery = productsQuery;
+
             if (!string.IsNullOrEmpty(color))
             {
-                var productWithSpecificColor = productsQuery.FirstOrDefault(p => p.Colors == color);
-                if (productWithSpecificColor != null)
-                {
-                    result.ProductDetail = new Product_detail
-                    {
-                        Id = productWithSpecificColor.Id,
-                        ProductName = productWithSpecificColor.ProductName,
-                        Price = productWithSpecificColor.Price,
-                        PriceHasDecreased = productWithSpecificColor.PriceHasDecreased,
-                        Description = productWithSpecificColor.Description,
-                        Image = productWithSpecificColor.Image,
-                        brandName = productWithSpecificColor.brandName,
-                        TypeName = productWithSpecificColor.TypeName,
-                        Colors = productWithSpecificColor.Colors,
-                        Status = ((StatusProduct)productWithSpecificColor.Status).ToString()
-                    };
-                }
-                else
-                {
-                    result.ProductDetail = null;
-                }
+                filteredProductQuery = filteredProductQuery.Where(p => p.Colors == color);
+            }
+            if (!string.IsNullOrEmpty(size))
+            {
+                filteredProductQuery = filteredProductQuery.Where(p => p.Size == size);
+            }
+
+            var productWithSpecificAttributes = filteredProductQuery.FirstOrDefault();
+
+            if (productWithSpecificAttributes != null)
+            {
+                result.ProductDetail = MapToProductDetail(productWithSpecificAttributes);
             }
             else
             {
                 result.ProductDetails = productsQuery
-                    .Select(p => new Product_detail
-                    {
-                        Id = p.Id,
-                        ProductName = p.ProductName,
-                        Price = p.Price,
-                        PriceHasDecreased = p.PriceHasDecreased,
-                        Description = p.Description,
-                        Image = p.Image,
-                        brandName = p.brandName,
-                        TypeName = p.TypeName,
-                        Colors = p.Colors,
-                        Status = ((StatusProduct)p.Status).ToString()
-                    }).ToList();
+                    .Select(p => MapToProductDetail(p))
+                    .ToList();
             }
-            result.AvailableColors = productsQuery
-                .Select(p => p.Colors)
-                .Distinct()
-                .ToList();
+
+            result.AvailableColors = productsQuery.Select(p => p.Colors).Distinct().ToList();
+            result.AvailableSize = productsQuery.Select(p => p.Size).Distinct().ToList();
 
             return result;
         }
+
+        // Update the parameter type to match the correct model class name (Products)
+        private Product_detail MapToProductDetail(Products product)
+        {
+            return new Product_detail
+            {
+                Id = product.Id,
+                ProductName = product.ProductName,
+                Price = product.Price,
+                PriceHasDecreased = product.PriceHasDecreased,
+                Description = product.Description,
+                Image = product.Image,
+                brandName = product.brandName,
+                TypeName = product.TypeName,
+                Colors = product.Colors,
+                Size = product.Size,
+                Status = ((StatusProduct)product.Status).ToString()
+            };
+        }
+
 
         public async Task<List<GetViewProductType>> GetProductType(string productType)
         {
@@ -519,6 +522,12 @@ namespace WebXeDapAPI.Service
             {
                 var products = await _dbContext.Products
                     .Where(p => p.ProductName.Contains(keyWord) || p.brandName.Contains(keyWord) || p.TypeName.Contains(keyWord))
+                    .ToListAsync();  // Lấy toàn bộ sản phẩm thỏa mãn điều kiện từ cơ sở dữ liệu
+
+                // Nhóm theo tên sản phẩm và chọn sản phẩm đầu tiên trong mỗi nhóm
+                var distinctProducts = products
+                    .GroupBy(p => p.ProductName)
+                    .Select(g => g.First())  // Lấy sản phẩm đầu tiên trong mỗi nhóm (tên duy nhất)
                     .Select(p => new productsSearchKey
                     {
                         Id = p.Id,
@@ -533,9 +542,9 @@ namespace WebXeDapAPI.Service
                         Size = p.Size,
                         Status = p.Status.ToString()
                     })
-                    .ToListAsync();
+                    .ToList();  // Chuyển nhóm về danh sách
 
-                return products;
+                return distinctProducts;
             }
             catch (Exception ex)
             {

@@ -13,6 +13,7 @@ namespace WebXeDapAPI.Dto
         public string brandName { get; set; }
         public string TypeName { get; set; }
         public string Colors { get; set; }
+        public string? Size { get; set; }
         public string Status { get; set; }
     }
 
@@ -21,5 +22,6 @@ namespace WebXeDapAPI.Dto
         public Product_detail ProductDetail { get; set; }
         public List<Product_detail> ProductDetails { get; set; } // Thêm thuộc tính này
         public List<string> AvailableColors { get; set; }
+        public List<string> AvailableSize { get; set; }
     }
 }

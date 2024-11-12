@@ -324,12 +324,12 @@ namespace WebXeDapAPI.Controller
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetProductsByNameAndColor(string productName, string? color)
+        public IActionResult GetProductsByNameAndColor(string productName, string? color, string? size)
         {
             try
             {
                 // Gọi phương thức lấy sản phẩm dựa trên productName và màu sắc
-                var productDetails = _productsService.GetProductsByNameAndColor(productName, color);
+                var productDetails = _productsService.GetProductsByNameAndColor(productName, color, size);
 
                 // Kiểm tra nếu không tìm thấy sản phẩm với màu cụ thể hoặc danh sách sản phẩm rỗng
                 if ((productDetails.ProductDetail == null && productDetails.ProductDetails == null) ||
