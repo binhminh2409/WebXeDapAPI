@@ -9,6 +9,7 @@ using WebXeDapAPI.Models;
 using WebXeDapAPI.Common;
 using System.Security.Claims;
 using WebXeDapAPI.Models.Enum;
+using WebXeDapAPI.Repository.Interface;
 
 namespace WebXeDapAPI.Controller
 {
@@ -17,12 +18,22 @@ namespace WebXeDapAPI.Controller
     public class DeliveryController : ControllerBase
     {
         private readonly IDeliveryIService _deliveryService;
+
+        private readonly IStockIService _stockService;
+
+        private readonly IOrderIService _orderService;
+
         private readonly Token _token;
 
-        public DeliveryController(IDeliveryIService deliveryService, Token token)
+        public DeliveryController(IDeliveryIService deliveryService,
+        Token token,
+        IStockIService stockService,
+        IOrderIService orderService)
         {
             _deliveryService = deliveryService;
             _token = token;
+            _stockService = stockService;
+            _orderService = orderService;
         }
 
 
@@ -184,7 +195,7 @@ namespace WebXeDapAPI.Controller
             }
         }
 
-        [HttpGet("Update")]
+        [HttpPut("Update")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<ActionResult<DeliveryDto>> Update([FromBody] DeliveryDto deliveryDto)
@@ -203,6 +214,11 @@ namespace WebXeDapAPI.Controller
                     }
 
                     var updatedDto = await _deliveryService.UpdateAsync(deliveryDto);
+                    if (updatedDto.Status == "Completed")
+                    {
+                        OrderWithDetailDto orderWithDetail = _orderService.GetByIdWithDetail(updatedDto.Payment.OrderId);
+                        await _stockService.DecreaseQuantityByOrderWithDetail(orderWithDetail);
+                    }
 
                     return Ok(new XBaseResult
                     {
@@ -214,6 +230,36 @@ namespace WebXeDapAPI.Controller
                 }
                 return BadRequest("Invalid user ID.");
 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "An error occurred while creating delivery: " + ex.Message
+                });
+            }
+        }
+
+
+        [HttpGet("GetStatus")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<DeliveryDto>> GetStatus()
+        {
+            try
+            {
+                var statusList = Enum.GetNames(typeof(StatusDelivery)).ToList();
+
+
+                return Ok(new XBaseResult
+                {
+                    data = statusList,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Delivery retreived"
+                });
             }
             catch (Exception ex)
             {

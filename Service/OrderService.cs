@@ -116,7 +116,6 @@ namespace WebXeDapAPI.Service
                         {
                             throw new ArgumentException($"Product with ID {productId} does not have enough stock");
                         }
-                        _stockInterface.DecreaseQuantity(stock.Id, cart.Quantity);
 
                         if (cart != null)
                         {

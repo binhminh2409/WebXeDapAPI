@@ -282,5 +282,6 @@ namespace WebXeDapAPI.Service
 
             return inputStockDtos;
         }
+
     }
 }
